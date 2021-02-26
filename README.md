@@ -7,6 +7,11 @@ First download the data from the following link:
 
 [https://drive.google.com/uc?export=download&id=1RM4gXlSIic22HvYHaS5XOGmjcLDSUiUv](https://drive.google.com/uc?export=download&id=1RM4gXlSIic22HvYHaS5XOGmjcLDSUiUv)
 
+and the COCO panoptic segmentations from here and unzip them:
+
+[images.cocodataset.org/annotations/panoptic_annotations_trainval2017.zip](images.cocodataset.org/annotations/panoptic_annotations_trainval2017.zip)
+
+
 unzip the file and allocate the folders in the right places you will use it for run the code
 ```bash
 unzip COCO_subfolder_output.zip
