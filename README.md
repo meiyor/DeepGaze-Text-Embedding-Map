@@ -25,5 +25,14 @@ This will generate a new co-occurrences matrix in a file called **sal_cooccur_ma
 Having your embedding calculated you can create your TEM images assigning an output folder for them and running
 
 ```python
-python generate_TEM/generate_TEM_300.py
+python generate_TEM/generate_TEM_train_300.py
+python generate_TEM/generate_TEM_val_300.py
 ```
+The previous calls will generate the TEM images on .tiff format including the 300 dimension of the semantic spaces obtained by Mittens substracting the semantic space of the annotated scene and the objects in the scene. 
+
+If you want to do the same but creating some TEM images with the Cosine, Euclidean, and Chebyshev distances between the annotated scene and the objectes run:
+```python
+python generate_TEM/generate_TEM_train_300.py
+python generate_TEM/generate_TEM_val_300.py
+```
+
