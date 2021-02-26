@@ -49,7 +49,7 @@ log.txt files will present you the current status of the learning, or if you wan
 
 A LL evolution through the training epochs could be observed in the following Figure including TEM features. Adabound and a final Drop-out layer must be added at the end of the network for avoiding overfitting:
 
-<img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/TEM_ADAM_bound.jpg" width="100" height="100">
+<img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/TEM_ADAM_bound.jpg" width="700" height="400">
 
 The performance comparison between the Deep-Gaze-II baseline and the DeepGaze + TEM is the following:
 
