@@ -1,9 +1,9 @@
 ## all packages added here ** please remember to add all of them before running the traning or testing
 ## to run roc.c frst cythonize the roc.pyc depending on your architecture using ipython or cython
-
 import os
 import argparse
 import schema
+import subprocess
 import numpy as np
 import pandas as pd
 import math
@@ -1239,6 +1239,12 @@ def compute_predictions(iter_fn, directory, prediction_config, training_config):
     
     model = build_model(training_config['model'])
     shared_model = SharedPyTorchModel(model)
+    bashCommand1 = "cp vgg.py vgg_temp.py"
+    bashCommand2 = "cp vgg_pred.py vgg.py"
+    process1 = subprocess.Popen(bashCommand1, stdout=subprocess.PIPE)
+    output1, error1 = process1.communicate()
+    process2 = subprocess.Popen(bashCommand2, stdout=subprocess.PIPE)
+    output2, error2 = process2.communicate()
     
     for dataset in prediction_config['datasets']:
         print(f"Computing predictions for dataset {dataset}")
