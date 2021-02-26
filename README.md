@@ -14,7 +14,7 @@ and the COCO panoptic segmentations from here and unzip them **use the train and
 [COCO download**](https://cocodataset.org/#download)
 
 
-unzip the file and allocate the folders in the right places you will use it for run the code
+unzip the file and allocate the folders in the right places you will use it for run the code and modifify from the code if youn need it
 ```bash
 unzip COCO_subfolder_output.zip
 ```
@@ -24,7 +24,7 @@ python generate_TEM/generate_objects_co_occur.py
 ```
 This will generate a new co-occurrences matrix in a file called **sal_cooccur_mat_new.txt**. To obtain the new embeddings use the instructions on the package **[Mittens](https://github.com/roamanalytics/mittens)** and upload the file **sal_cooccur_mat_new.txt** as csv.
 
-Having your embedding calculated you can create your TEM images assigning an output folder for them and running
+Having your embedding file you can create your TEM images assigning an output folder for them and running
 
 ```python
 python generate_TEM/generate_TEM_train_300.py
@@ -43,7 +43,7 @@ Now you must create the **centerbias** files for the stimuli and the TEM images.
 python create_centerbias.py
 python create_centerbias_TEM.py
 ```
-Now, you are ready to the training! and you can run:
+Now, you are ready to the training! and you can run this:
 ```python
 python run_dgII_evaluation_plus_TEM.py
 ```
