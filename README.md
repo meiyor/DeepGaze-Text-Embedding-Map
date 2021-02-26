@@ -32,7 +32,8 @@ The previous calls will generate the TEM images on .tiff format including the 30
 
 If you want to do the same but creating some TEM images with the Cosine, Euclidean, and Chebyshev distances between the annotated scene and the objectes run:
 ```python
-python generate_TEM/generate_TEM_train_300.py
-python generate_TEM/generate_TEM_val_300.py
+python generate_TEM/generate_TEM_train_dist.py
+python generate_TEM/generate_TEM_val_dist.py
 ```
 
+Now you must create the Centerbias files for the stimuli images and the TEMs if necessary for doing that be sure the stimuli_train.hdf5, fixations_train.hdf5, stimuli_val.hdf5, fixations_val.hdf5, stimuli_TEM_train.hdf5, and stimuli_TEM_val.hdf5 files are located in the **experiment_root/** folder. Then, you can run: 
