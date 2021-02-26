@@ -47,7 +47,7 @@ python run_dgII_evaluation_plus_TEM.py
 ```
 log.txt files will present you the current status of the learning, or if you want to wait until the end of the training  the file **results_TEM.csv** will show you the final Log-likehood (LL), Information Gain (IG), Area Under Curve (AUC), and Normalized Scanpath Saliency (NSS).
 
-The performance comparison between the Deep-Gaze-II baseline and the DeepGaze + TEM is the following
+The performance comparison between the Deep-Gaze-II baseline and the DeepGaze + TEM is the following:
 
 |   | **IG** | **LL** | **AUC** | **NSS** | 
 | ------------- | ------------- |  ------------- | ------------- |  ------------- |
