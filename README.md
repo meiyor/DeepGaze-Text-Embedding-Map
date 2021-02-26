@@ -1,7 +1,7 @@
 ## DeepGaze adding Text-Embedding-Map features
 This repository includes the implementation of **DeepGaze** adding the **Text-Embedding-Maps** (TEM) [Barman et., al 2020](https://arxiv.org/abs/2002.06144) - [Yang et., al 2017](https://openaccess.thecvf.com/content_cvpr_2017/html/Yang_Learning_to_Extract_CVPR_2017_paper.html) for predicting robustly human fixation/gaze.
 
-We used a data intersection between [COCO](https://cocodataset.org/#home) and [SALICON](https://cocodataset.org/#home) to perform our evaluations using the fixations from SALICON and the panoptic annotations/segmentations from COCO.
+We used a data intersection between [COCO](https://cocodataset.org/#home) and [SALICON](http://salicon.net/) to perform our evaluations using the fixations from SALICON and the panoptic annotations/segmentations from COCO.
 
 First download the data from the following link:
 
