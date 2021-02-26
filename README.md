@@ -37,3 +37,7 @@ python generate_TEM/generate_TEM_val_dist.py
 ```
 
 Now you must create the **centerbias** files for the stimuli and the TEM images. For doing that be sure the stimuli_train.hdf5, fixations_train.hdf5, stimuli_val.hdf5, fixations_val.hdf5, stimuli_TEM_train.hdf5, and stimuli_TEM_val.hdf5 files are located in the **experiment_root/** folder. Then, you can run: 
+```python
+python create_centerbias.py
+python create_centerbias_TEM.py
+```
