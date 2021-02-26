@@ -7,9 +7,9 @@ First download the data from the following link:
 
 [https://drive.google.com/uc?export=download&id=1RM4gXlSIic22HvYHaS5XOGmjcLDSUiUv](https://drive.google.com/uc?export=download&id=1RM4gXlSIic22HvYHaS5XOGmjcLDSUiUv)
 
-and the COCO panoptic segmentations from here and unzip them:
+and the COCO panoptic segmentations from here and unzip them **use the train and val panoptic sets released on 2017**:
 
-[images.cocodataset.org/annotations/panoptic_annotations_trainval2017.zip](images.cocodataset.org/annotations/panoptic_annotations_trainval2017.zip)
+[COCO dowload](https://cocodataset.org/#download)
 
 
 unzip the file and allocate the folders in the right places you will use it for run the code
