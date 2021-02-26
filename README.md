@@ -5,7 +5,9 @@ We used a data intersection between [COCO](https://cocodataset.org/#home) and [S
 
 First download the data from the following link:
 
-[https://drive.google.com/uc?export=download&id=1RM4gXlSIic22HvYHaS5XOGmjcLDSUiUv](https://drive.google.com/uc?export=download&id=1RM4gXlSIic22HvYHaS5XOGmjcLDSUiUv)
+[COCO images](https://drive.google.com/uc?export=download&id=1RM4gXlSIic22HvYHaS5XOGmjcLDSUiUv)
+[Fixation HDF5](https://drive.google.com/uc?export=download&id=102FzMhYTnFQQw_LriKy51prZw43pYfYW)
+
 
 and the COCO panoptic segmentations from here and unzip them **use the train and val panoptic sets released on 2017**:
 
