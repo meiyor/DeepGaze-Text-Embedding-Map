@@ -20,7 +20,7 @@ First generate the TEM, take into account that the file **file_annotations/sal_g
 ```python
 python generate_objects_co_occur.py
 ```
-This will generate a new co-occurrences matrix in a file called **sal_cooccur_mat_new.txt**. To obtain the new embeddings use the package **[Mittens](https://github.com/roamanalytics/mittens)**
+This will generate a new co-occurrences matrix in a file called **sal_cooccur_mat_new.txt**. To obtain the new embeddings use the instructions on the package **[Mittens](https://github.com/roamanalytics/mittens)** and upload the file **sal_cooccur_mat_new.txt** as csv.
 
 ```python
 python generate_TEM.py
