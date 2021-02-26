@@ -3,7 +3,12 @@ This repository includes the implementation of **DeepGaze** adding the **Text-Em
 
 We use a data intersection between [COCO](https://cocodataset.org/#home) and [SALICON](https://cocodataset.org/#home) to perform our evaluations using the fixations from SALICON and the panoptic annotations/segmentations from COCO.
 
+First download the data from the Onedrive .zip file:
+
+[https://drive.google.com/uc?export=download&id=1RM4gXlSIic22HvYHaS5XOGmjcLDSUiUv](https://drive.google.com/uc?export=download&id=1RM4gXlSIic22HvYHaS5XOGmjcLDSUiUv)
+
 For runnig the code first generate the TEM:
+
 
 ```python
 python generate_TEM.py
