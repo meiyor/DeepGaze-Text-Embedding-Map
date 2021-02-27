@@ -1241,9 +1241,9 @@ def compute_predictions(iter_fn, directory, prediction_config, training_config):
     shared_model = SharedPyTorchModel(model)
     bashCommand1 = "cp vgg.py vgg_temp.py"
     bashCommand2 = "cp vgg_pred.py vgg.py"
-    process1 = subprocess.Popen(bashCommand1, stdout=subprocess.PIPE)
+    process1 = subprocess.Popen(bashCommand1.split(), stdout=subprocess.PIPE)
     output1, error1 = process1.communicate()
-    process2 = subprocess.Popen(bashCommand2, stdout=subprocess.PIPE)
+    process2 = subprocess.Popen(bashCommand2.split(), stdout=subprocess.PIPE)
     output2, error2 = process2.communicate()
     
     for dataset in prediction_config['datasets']:
