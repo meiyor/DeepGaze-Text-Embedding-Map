@@ -59,3 +59,8 @@ The performance comparison between the [DeepGaze](https://github.com/matthias-k/
 | ------------- | ------------- |  ------------- | ------------- |  ------------- |
 | **DeepGaze**  | 0.5414±0.5714 | 1.2296±0.5666 | 0.8317±0.0562 | 1.5268±0.7245 |
 | **DeepGaze + TEM**  | **0.5662±0.5816** | **1.2556±0.5874** | 0.8333±0.0563 | **1.5445±0.7661** | 
+
+A statistical comparison have been using paired test evaluating the normality of each metrics finding the following effect plot and corrected p-values.
+All the metrics show a significant improvement for all paired test methods.
+
+
