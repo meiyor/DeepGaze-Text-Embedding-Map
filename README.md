@@ -65,4 +65,10 @@ All the metrics show a significant improvement for all paired test methods.
 
 <img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/plot_effect_IG.jpg" width="750" height="350">
 
+|   | **IG** | **LL** | **NSS** | **AUC** | 
+| ------------- | ------------- |  ------------- | ------------- |  ------------- |
+| **ttest**  | 2.25E-12 | 2.25E-12 | 1.72E-5 | 5.41E-7 |
+| **signtest**  | 5.56E-12 | 5.56E-12 | 1.33E-9 | 1.41E-5 | 
+| **signrank**  | 3.03E-14 | 3.03E-14 | 2.94E-9 | 7.88E-8 | 
+
 
