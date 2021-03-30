@@ -118,7 +118,6 @@ class Fixations(object):
         self.x = x
         self.y = y
         self.t = t
-        #print('po',x_hist,y_hist)
         self.x_hist = x_hist
         self.y_hist = y_hist
         self.t_hist = t_hist
@@ -278,7 +277,6 @@ class Fixations(object):
         x_hist = np.empty((len(x), 1))*np.nan
         y_hist = np.empty((len(x), 1))*np.nan
         t_hist = np.empty((len(x), 1))*np.nan
-        #print(cls,x,y,t)
         return cls(x, y, t, x_hist, y_hist, t_hist, n, subjects)
         # use the following return if you want to use a FixationTrains object which is not having the same amount of input parameters. Go create fixations and use from_fixation_trains 
         #return cls(x, y, t, n, subjects)  
@@ -301,7 +299,6 @@ class Fixations(object):
     @hdf5_wrapper(mode='r')
     def read_hdf5(cls, source):
         """ Read fixations from hdf5 file or hdf5 group """
-        #print('ohh',source)
         data_type = decode_string(source.attrs['type'])
         data_version = decode_string(source.attrs['version'])
 
@@ -312,7 +309,6 @@ class Fixations(object):
             raise ValueError("Invalid version! Expected '1.0', got", data_version)
 
         data = {key: source[key][...] for key in ['x', 'y', 't', 'x_hist', 'y_hist', 't_hist', 'n', 'subjects']}
-        #print(data,'loo')
         fixations = cls(**data)
 
         json_attributes = source.attrs['__attributes__']
@@ -356,9 +352,9 @@ class FixationTrains(Fixations):
         self.x = np.empty(N_trains)
         self.y = np.empty(N_trains)
         self.t = np.empty(N_trains)
-        self.x_hist = np.empty((N_trains, max_length_trains - 1))
-        self.y_hist = np.empty((N_trains, max_length_trains - 1))
-        self.t_hist = np.empty((N_trains, max_length_trains - 1))
+        self.x_hist = np.empty((N_trains, max_length_trains))
+        self.y_hist = np.empty((N_trains, max_length_trains))
+        self.t_hist = np.empty((N_trains, max_length_trains))
         self.x_hist[:] = np.nan
         self.y_hist[:] = np.nan
         self.t_hist[:] = np.nan
@@ -370,16 +366,20 @@ class FixationTrains(Fixations):
         for train_index in range(self.train_xs.shape[0]):
             fix_length = (1 - np.isnan(self.train_xs[train_index])).sum()
             for fix_index in range(fix_length):
-                self.x[out_index] = self.train_xs[train_index][fix_index]
-                self.y[out_index] = self.train_ys[train_index][fix_index]
-                self.t[out_index] = self.train_ts[train_index][fix_index]
+                self.x[out_index] = self.train_xs[train_index]#[fix_index]
+                self.y[out_index] = self.train_ys[train_index]#[fix_index]
+                self.t[out_index] = self.train_ts[train_index]#[fix_index]
                 self.n[out_index] = self.train_ns[train_index]
                 self.subjects[out_index] = self.train_subjects[train_index]
                 self.lengths[out_index] = fix_index
                 self.scanpath_index[out_index] = train_index
-                self.x_hist[out_index][:fix_index] = self.train_xs[train_index][:fix_index]
-                self.y_hist[out_index][:fix_index] = self.train_ys[train_index][:fix_index]
-                self.t_hist[out_index][:fix_index] = self.train_ts[train_index][:fix_index]
+                self.x_hist[out_index][0] = self.train_xs[train_index][0]
+                self.y_hist[out_index][0] = self.train_ys[train_index][0]
+                self.t_hist[out_index][0] = self.train_ts[train_index][0]
+                ## do this when you have xs, ys and ts and ndarrays or matrices
+                #self.x_hist[out_index][:fix_index] = self.train_xs[train_index][:fix_index]
+                #self.y_hist[out_index][:fix_index] = self.train_ys[train_index][:fix_index]
+                #self.t_hist[out_index][:fix_index] = self.train_ts[train_index][:fix_index]
                 out_index += 1
 
         if attributes:
@@ -433,7 +433,7 @@ class FixationTrains(Fixations):
         #print(cls,x,y,t)
         return cls(x, y, t, x_hist, y_hist, t_hist, n, subjects)
         # use the following return if you want to use a FixationTrains object which is not having the same amount of input parameters. Go create fixations and use from_fixation_trains
-        #return cls(x, y, t, n, subjects)
+        return cls(x, y, t, n, subjects)
 
     
     @classmethod
@@ -447,6 +447,7 @@ class FixationTrains(Fixations):
         """
         #print(xs,'rii')
         maxlength=1
+        ## use this maxlength when you a x_train as ndarray or nd tensor
         #maxlength = max([len(x_train) for x_train in xs])
         train_xs = np.empty((len(xs), maxlength))
         train_xs[:] = np.nan
@@ -729,8 +730,8 @@ class FixationTrains(Fixations):
         if data_type != 'FixationTrains':
             raise ValueError("Invalid type! Expected 'FixationTrains', got", data_type)
 
-        if data_version != '1.0':
-            raise ValueError("Invalid version! Expected '1.0', got", data_version)
+        #if data_version != '1.0':
+        #    raise ValueError("Invalid version! Expected '1.0', got", data_version)
 
         data = {key: source[key][...] for key in ['train_xs', 'train_ys', 'train_ts', 'train_ns', 'train_subjects']}
         
@@ -996,7 +997,7 @@ class FileStimuli(Stimuli):
     def load_stimulus(self, n):
         type_f=self.filenames[n].split('.')
         #print(type_f,'type_file')
-        if type_f[2]=='jpg' or type_f[2]=='png':
+        if type_f[1]=='jpg' or type_f[1]=='png':
              return imread(self.filenames[n])
         else:
              return imgread_tiff(self.filenames[n])     

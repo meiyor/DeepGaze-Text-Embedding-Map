@@ -137,6 +137,9 @@ class ScanpathModel(SamplingModelMixin, object):
 
     def information_gain(self, stimuli, fixations, baseline_model=None, verbose=False, average='fixation'):
         return average_values(self.information_gains(stimuli, fixations, baseline_model, verbose=verbose), fixations, average=average)
+     
+    def information_gain_na(self, stimuli, fixations, baseline_model=None, verbose=False, average='fixation'):
+        return self.information_gains(stimuli, fixations, baseline_model, verbose=verbose)
 
     def _expand_sample_arguments(self, stimuli, train_counts, lengths=None, stimulus_indices=None):
         if isinstance(train_counts, int):
@@ -278,7 +281,7 @@ class Model(ScanpathModel):
             self._cache[stimulus_id] = self._log_density(stimulus.stimulus_data)
         return self._cache[stimulus_id]
     
-    def log_density_n(self, stimulus, stimulus_TEM):
+    def log_density_n(self, stimulus, stimulus_TEM, x_hist, y_hist):
         """
 	Get log_density for given stimulus.
 
@@ -289,7 +292,7 @@ class Model(ScanpathModel):
         stimulus_TEM = handle_stimulus(stimulus_TEM)
         if not self.caching:
                 if (len(np.shape(stimulus.stimulus_data))==3 and np.shape(stimulus.stimulus_data)[2]==3):
-                        return self._log_density_n(stimulus.stimulus_data,stimulus_TEM.stimulus_data)
+                        return self._log_density_n(stimulus.stimulus_data,stimulus_TEM.stimulus_data,x_hist,y_hist)
                 else:
                         #print('kii_w')
                         return stimulus.stimulus_data
@@ -297,7 +300,7 @@ class Model(ScanpathModel):
         #print(stimulus_id,stimulus.stimulus_data,self._cache,'stim_id_id')
         if not stimulus_id in self._cache:
             #print(stimulus,'stim_stim')
-            self._cache[stimulus_id] = self._log_density_n(stimulus.stimulus_data,stimulus_TEM.stimulus_data)
+            self._cache[stimulus_id] = self._log_density_n(stimulus.stimulus_data,stimulus_TEM.stimulus_data,x_hist,y_hist)
         return self._cache[stimulus_id] 
 
     @abstractmethod
@@ -537,11 +540,11 @@ class StimulusDependentModel(Model):
         else:
             raise ValueError('stimulus not provided by these models')
 
-    def _log_density_n(self, stimulus, stimulus_TEM):
+    def _log_density_n(self, stimulus, stimulus_TEM,x_hist,y_hist):
         stimulus_hash = get_image_hash(stimulus)
         for stimuli, model in self.stimuli_models.items():
             if stimulus_hash in stimuli.stimulus_ids:
-                return model.log_density_n(stimulus,stimulus_TEM)
+                return model.log_density_n(stimulus,stimulus_TEM,x_hist,y_hist)
         else:
             raise ValueError('stimulus not provided by these models')
 

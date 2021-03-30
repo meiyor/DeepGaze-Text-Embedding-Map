@@ -55,7 +55,7 @@ def export_model_to_hdf5(model, stimuli, filename, compression=9, overwrite=True
             f.create_dataset(names[k], data=smap, compression=compression)
 
 
-def export_model_to_hdf5_n(model, stimuli, stimuli_TEM, filename, compression=9, overwrite=True):
+def export_model_to_hdf5_n(model, stimuli, stimuli_TEM, fixation, filename, compression=9, overwrite=True):
     """Export pysaliency model predictions for stimuli into hdf5 file
 
     model: Model or SaliencyMapModel
@@ -88,7 +88,7 @@ def export_model_to_hdf5_n(model, stimuli, stimuli_TEM, filename, compression=9,
             if isinstance(model, SaliencyMapModel):
                 smap = model.saliency_map(s)
             elif isinstance(model, Model):
-                smap = model.log_density_n(s,stim_p[k])
+                smap = model.log_density_n(s,stim_p[k],torch.reshape(torch.tensor(fixation.x_hist[k]),(1,1)),torch.reshape(torch.tensor(fixation.y_hist[k]),(1,1)))
             else:
                 raise TypeError(type(model))
             #print(smap,names)
