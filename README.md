@@ -53,7 +53,7 @@ A LL evolution through the training epochs could be observed in the following Fi
 
 <img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/pipeline_def_new_no_scan.jpg" width="1100" height="300">
 
-The performance comparison between the [DeepGaze](https://github.com/matthias-k/deepgaze_pytorch) baseline and the DeepGaze+TEM is the following:
+The performance comparison between the [DeepGaze (DG)](https://github.com/matthias-k/deepgaze_pytorch) baseline and the DeepGaze+TEM is the following:
 
 |   | **IG** | **LL** | **AUC** | **NSS** | 
 | ------------- | ------------- |  ------------- | ------------- |  ------------- |
@@ -71,4 +71,5 @@ All the metrics show a significant improvement for all paired test methods as we
 | **signtest**  | 5.56E-12 | 5.56E-12 | 1.33E-9 | 1.41E-5 | 
 | **signrank**  | 3.03E-14 | 3.03E-14 | 2.94E-9 | 7.88E-8 | 
 
+A great example of the metrics example using the TEM as features is shown on the next figure describing the saliency map pattern using a jet colormap, and showing the fixations groundtruth, the panoptic annotatio image, and the results for the DG baseline and our proposed DG+TEM.
 
