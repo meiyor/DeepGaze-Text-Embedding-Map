@@ -1,6 +1,6 @@
 model:
   downscale_factor: 2
-  readout_factor: 2
+  readout_factor: 4
   saliency_map_factor: 4
   include_previous_x: true
   include_previous_y: true
@@ -16,7 +16,7 @@ model:
         - conv5_3
         - relu5_4
   saliency_network:
-    input_channels: 2560
+    input_channels: 3481
     layers:
     - name: conv1
       channels: 16
@@ -33,33 +33,33 @@ model:
       layer_norm: True
       bias: True
       activation_fn: softplus
-  saliency_network_TEM: null
-  #  input_channels: 303
-  #  layers:
-  #  - name: conv1_n
-  #    channels: 128
-  #    layer_norm: True
-  #    batch_norm: False
-  #    activation_fn: softplus
-  #  - name: conv2_n
-  #    channels: 16
-  #    layer_norm: True
-  #    batch_norm: False
-  #    bias: True
-  #    activation_fn: softplus
-  scanpath_network: null
-    #input_channels: 6
-    #layers:
-    # - name: conv1
-    #   channels: 128
-    #   layer_norm: True
-    #   batch_norm: False
-    # - name: conv2
-    #   channels: 16
-    #   layer_norm: True
-    #   batch_norm: False
+  saliency_network_TEM:
+    input_channels: 303
+    layers:
+    - name: conv1_n
+      channels: 64
+      layer_norm: True
+      batch_norm: True
+      activation_fn: softplus
+    - name: conv2_n
+      channels: 16
+      layer_norm: True
+      batch_norm: True
+      bias: True
+      activation_fn: softplus
+  scanpath_network:
+    input_channels: 300
+    layers:
+     - name: conv1
+       channels: 128
+       layer_norm: True
+       batch_norm: True
+     - name: conv2
+       channels: 16
+       layer_norm: True
+       batch_norm: True
   fixation_selection_network:
-    input_channels: [1, 1, 0]
+    input_channels: [1, 0] #or use [1 16] in case you will use the scanpath 
     layers:
     - name: conv1
       channels: 64
@@ -67,7 +67,7 @@ model:
       batch_norm: True
       activation_fn: softplus
     - name: conv2
-      channels: 8
+      channels: 16
       layer_norm: True
       batch_norm: True
       activation_fn: softplus
@@ -75,36 +75,19 @@ model:
       channels: 1
       activation_fn: null
       bias: False
-  fixation_selection_network_TEM: null
-    #input_channels: [1, 0]
-    #layers:
-    #- name: conv1nn
-    #  channels: 128
-    #  layer_norm: True
-    #  batch_norm: False
-    #  activation_fn: softplus
-    #- name: conv2nn
-    #  channels: 16
-    #  layer_norm: True
-    #  batch_norm: False
-    #  activation_fn: softplus
-    #- name: conv3nn
-    #  channels: 1
-    #  activation_fn: null
-    #  bias: False
   conv_all_parameters:
-    input_channels: 303
+    input_channels: 21
     layers:
     - name: conv1
-      channels: 100
+      channels: 300
       layer_norm: True
       batch_norm: True
       activation_fn: softplus
   conv_all_parameters_trans:
-    input_channels: 303                           
+    input_channels: 21                           
     layers:
     - name: convtrans 
-      channels: 100
+      channels: 300
       layer_norm: True
       batch_norm: True
       activation_fn: softplus
@@ -116,6 +99,7 @@ training:
   lr_scheduler:
     type: torch.optim.lr_scheduler.MultiStepLR
     params:
+     #milestones: [20, 25, 50, 60, 70, 90, 105, 120]
      milestones: [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33]
   batch_size: 10
   iteration_element: image
@@ -136,7 +120,7 @@ training:
       centerbias: ../SaliencyFeatures/experiments/experiment0007_SALICON_val_centerbias/SALICON_val_baseline.hdf5
     lr_scheduler:
       params:
-        milestones: [20, 30, 45, 60, 75, 90, 105, 120]
+        milestones:  [28, 32, 40, 60, 70, 90, 105, 120]
     validation_metrics: ['IG','LL', 'AUC', 'NSS']
     validation_metric: LL
     evaluation:
