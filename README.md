@@ -3,11 +3,11 @@ This repository includes the implementation of **DeepGaze** adding the **Text-Em
 
 We used a data intersection between [COCO](https://cocodataset.org/#home) and [SALICON](http://salicon.net/) to perform our evaluations using the fixations from SALICON and the panoptic annotations/segmentations from COCO.
 
-First download the data from the following links:
+First download the image data from the following links:
 
 [COCO images](https://drive.google.com/uc?export=download&id=1RM4gXlSIic22HvYHaS5XOGmjcLDSUiUv)
-[Fixation HDF5](https://drive.google.com/uc?export=download&id=102FzMhYTnFQQw_LriKy51prZw43pYfYW)
 
+For the fixation data use the hdf5 files included in the **experiments_root/** folder
 
 and the COCO panoptic segmentations from here and unzip them **use the train and val panoptic sets released on 2017**:
 
