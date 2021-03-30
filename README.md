@@ -53,7 +53,7 @@ A LL evolution through the training epochs could be observed in the following Fi
 
 <img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/pipeline_def_new_no_scan.jpg" width="1100" height="300">
 
-The performance comparison between the Deep-Gaze-II baseline and the DeepGaze + TEM is the following:
+The performance comparison between the [DeepGaze](https://github.com/matthias-k/deepgaze_pytorch) baseline and the DeepGaze+TEM is the following:
 
 |   | **IG** | **LL** | **AUC** | **NSS** | 
 | ------------- | ------------- |  ------------- | ------------- |  ------------- |
