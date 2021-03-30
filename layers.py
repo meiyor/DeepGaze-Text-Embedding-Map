@@ -267,7 +267,11 @@ class Conv2dMultiInput(nn.Module):
         for k, _in_channels in enumerate(in_channels):
             if _in_channels:
                 print(f'conv_part{k}',_in_channels,'part')
-                setattr(self, f'conv_part{k}', nn.Conv2d(_in_channels, out_channels, kernel_size, bias=bias))
+                if not(k==1):   
+                    setattr(self, f'conv_part{k}', nn.Conv2d(_in_channels, out_channels, kernel_size, bias=bias))
+                else:
+                    #print('transpose',k,_in_channels)
+                    setattr(self, f'conv_part{k}', nn.ConvTranspose2d(_in_channels, out_channels, kernel_size, bias=bias))
 
     def forward(self, tensors):
         assert len(tensors) == len(self.in_channels)
