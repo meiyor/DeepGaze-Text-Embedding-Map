@@ -18,30 +18,25 @@ from tifffile import imread, imwrite
 from panopticapi.utils import IdGenerator, rgb2id
 
 ## use the general file with the annotation and we can query the images IDs
-json_file = '/scratch/c.sapjm10/COCO/panoptic_annotation/panoptic_train2017.json'
-img_folder='/scratch/c.sapjm10/COCO/panoptic_annotation/panoptic_train2017'
 category_file = 'panoptic_coco_categories.json'
-directory_images_train='/scratch/c.sapjm10/COCO/COCO_subfolder/train/'
-directory_images_val='/scratch/c.sapjm10/COCO/COCO_subfolder/val/'
-csv_file='/scratch/c.sapjm10/COCO/COCO_SALICON_val_only_def_annotation.csv'
-output_dir='/scratch/c.sapjm10/COCO/TEM_val_pca_TEM_100'
+directory_images_train='COCO/train/'
+directory_images_val='COCO/val/'
+csv_file='COCO_SALICON_val_only_def_annotation.csv'
+output_dir='TEM_output_val'
 
 ## read the semantic results files from the images itself
 #semantic_vectors = scipy.io.loadmat('/home/jmm_vivobook_asus/DeepGaze_project/COCO/')
 name_vectors=[]
 vector_data=[]
-data_vectors='/scratch/c.sapjm10/COCO/sal_ground_truth_emb_SALICON_TEM_w.txt'
+data_vectors='sal_ground_truth_emb_SALICON_TEM_w.txt'
 with open(data_vectors,newline='') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',')
         for row in spamreader:
             name_vectors.append(row[0])
-            val_float=[float(i) for i in row[1:301]]
+            val_float=[float(i) for i in row[1:21]]
             vector_data.append(val_float)
-            #print(name_vectors)
-            #print(vector_data)
-            #print(', '.join(row))
-
-pca = PCA(n_components=100)
+            
+pca = PCA(n_components=20)
 principalComponents = pca.fit_transform(X = vector_data)
 
 pca_data=pca
@@ -119,24 +114,16 @@ for file_name in onlyfiles_val:
        file_annotated=annotation_object[k]['file_name'].split('.')
        segment_burst=annotation_object[k]['segments_info']
        if file_annotated[0] == file_name_def:
-           #print(file_name_def,'name')
-           #print(img_folder+'/'+file_annotated[0]+'.png')
            img = np.array(Image.open(os.path.join(img_folder,file_annotated[0]+'.png')))
            img_sal = np.zeros((img.shape[0],img.shape[1],101))
            img_real = np.array(Image.open(os.path.join(directory_images_val,file_name)))
            img_comp= np.zeros((img.shape[0],img.shape[1],101)) 
-           #print(np.shape(img),np.shape(img_sal),'shape_img')
            segmentation_img=rgb2id(np.array(img,dtype=np.uint8))
            boundaries_img = find_boundaries(segmentation_img, mode='thick')
-           #print(segmentation_img)
-           #img[:, :, :] = 0
-           #img_sal[:, :, :] = 0
            for i in range(0,len(segment_burst)):
                id_inx=segment_burst[i]['id']
                id_name=segment_burst[i]['category_id']
                mask = segmentation_img == id_inx
-               #mask_new = np.transpose(np.repeat(mask[np.newaxis,...],300,axis=0),(1,2,0))
-               #print(id_inx,np.shape(mask_new),np.shape(mask),'id_inx')
                ## look for object name before matching that name with the embedding file
                for c in range(0,len(category_res)):
                    if category_res[c]['id'] == id_name:
@@ -144,35 +131,16 @@ for file_name in onlyfiles_val:
                       break
                ## calculate cosine distance between objects and scene
                for q in range(0,len(name_vectors)):
-                   #print(name_vectors[q],name_object)
                    if name_vectors[q]==name_object:
                      pos_n=q
                      break
-               #print(ind_val,pos_n,vector_data[ind_val],vector_data[pos_n],'vals')
                val_dist = cdist(np.reshape(vector_data[ind_val],(-1,300)),np.reshape(vector_data[pos_n],(-1,300)),'cosine')
-               #val_dist_1 = cdist(np.reshape(vector_data[ind_val],(-1,300)),np.reshape(vector_data[pos_n],(-1,300)),'euclidean')
-               #val_dist_2 = cdist(np.reshape(vector_data[ind_val],(-1,300)),np.reshape(vector_data[pos_n],(-1,300)),'chebyshev')
-               #print(principalComponents,'pca')
-               #print(np.shape(mask),np.shape(mask_new),mask[:,0],mask[:,1],'mask')
-               #print(np.shape(vector_data[ind_val]),np.shape(vector_data[pos_n]))
-               #img_sal[mask]=np.concatenate(([val_dist[0][0],principalComponents[pos_n,0],principalComponents[pos_n,1]],np.squeeze(np.reshape(vector_data[ind_val][0:100],(-1,100))-np.reshape(vector_data[pos_n][0:100],(-1,100)))))
-               #img_sal[mask]=np.squeeze(np.reshape(vector_data[ind_val],(-1,300))-np.reshape(vector_data[pos_n],(-1,300)))
-               #img_sal[mask]=[val_dist[0][0],val_dist_1[0][0],val_dist_2[0][0]]
-               #img_sal[mask]=np.squeeze(np.reshape(vector_data[ind_val],(-1,300))-np.reshape(vector_data[pos_n],(-1,300)))
-               #img[mask]=[val_dist[0][0]*255,val_dist[0][0]*255,val_dist[0][0]*255]
-               img_sal[mask]=np.concatenate((np.atleast_1d(val_dist[0][0]),principalComponents[pos_n,0:100]))
-               #img_sal[mask]=[val_dist[0][0],principalComponents[pos_n,0],principalComponents[pos_n,1]]
-               #print(name_object,cat_val,val_dist[0][0],'distance value')
+               img_sal[mask]=np.concatenate((np.atleast_1d(val_dist[0][0]),principalComponents[pos_n,0:20]))
            img_sal[boundaries_img] = np.zeros((101))
-           #img_comp=np.concatenate((img_real,img_sal),axis=2)
-           #img_sal=255*(img_sal/np.linalg.norm(img_sal))
-           #img_sal=img
            break
-           #segmentation=annotation_object[k]['segments_info']
+        
     if file_annotated[0] == file_name_def: 
          print('COCO_val2014_'+file_annotated[0]+'.tif',cc)
          cc=cc+1
          imwrite(os.path.join(output_dir,'COCO_val2014_'+file_annotated[0]+'.tif'),img_sal,compress=6)
-         #im = Image.fromarray(img_sal)
-         #im.save(os.path.join(output_dir,file_annotated[0]+'.png'))       #num_objects=[]
 
