@@ -3,6 +3,7 @@
 import os
 import argparse
 import schema
+import csv
 import subprocess
 import numpy as np
 import pandas as pd
@@ -420,7 +421,6 @@ def build_model(model_config):
     features = feature_class(**features_config['params'])
     
     feature_extractor = FeatureExtractor(features, features_config['used_features'])
-    #print('extractor',feature_extractor)
     saliency_network = build_readout_network_from_config(model_config['saliency_network'])
     saliency_network_TEM = build_readout_network_from_config(model_config['saliency_network_TEM'])
     if model_config['scanpath_network'] is not None:
@@ -483,16 +483,22 @@ def eval_epoch(model, dataset, device, baseline_model, TEM_model, metrics=None, 
         'NSS': nss_std,
         'AUC': auc_std,
     }
+    metric_functions_val = {
+        'LL': log_likelihood_data,
+        'NSS': nss_data,
+        'AUC': auc_data,
+    }
     batch_weights = []
     with torch.no_grad():
         pbar = tqdm(dataset)
         n=0
         mval=[]
         sval=[]
+        file_names=[]
         for batch in pbar:
             image = batch['image'].to(device)
             TEM = batch['TEM'].to(device)
-            #print(image.shape,TEM.shape,'shape_n')
+            file_names.append(batch['file_name'])
             centerbias = batch['centerbias'].to(device)
             centerbias_TEM = batch['centerbias_TEM'].to(device)
             fixation_mask = batch['fixation_mask'].to(device)
@@ -509,21 +515,38 @@ def eval_epoch(model, dataset, device, baseline_model, TEM_model, metrics=None, 
                 if metric_name_std not in metrics:
                     continue
                 metric_scores_std.setdefault(metric_name_std, []).append(metric_fn_std(log_density, fixation_mask, weights=weights).detach().cpu().numpy())
+            for metric_name_N, metric_fn_N in metric_functions_val.items():
+                if metric_name_N not in metrics:
+                    continue
+                metric_scores_val.setdefault(metric_name_N, []).append(metric_fn_N(log_density, fixation_mask, weights=weights).detach().cpu().numpy())
             batch_weights.append(weights.detach().cpu().numpy().sum())
             
             for display_metric in ['LL', 'NSS', 'AUC']:
                 if display_metric in metrics:
                     pbar.set_description('{} {:.05f}'.format(display_metric, np.average(metric_scores[display_metric], weights=batch_weights)))
                     break
-    
+                    
+    flattened=[val for sublist in file_names for val in sublist]
+    for k in range(0,len(flattened)):
+         flattened[k]=flattened[k].split('/')[3]
     data = {metric_name: np.average(scores, weights=batch_weights) for metric_name, scores in metric_scores.items()}
     data_s= {metric_name_std: np.average(scores_std, weights=batch_weights) for metric_name_std, scores_std in metric_scores_std.items()}
+    data_k = {metric_name_N: np.concatenate(scores_N).ravel() for metric_name_N, scores_N in metric_scores_val.items()}
     
+    ## this is only to check how the training is evolving 
     print(data,'val_mean')
     print(data_s,'val_std')
     if 'IG' in metrics:
         baseline_ll = baseline_performance(baseline_model, dataset.dataset.stimuli, dataset.dataset.fixations, verbose=True, average=averaging_element)
         data['IG'] = data['LL']-baseline_ll
+        data_k['IG'] = data_k['LL'] - baseline_ll
+        
+    with open('metrics_results_deep_TEM_scan_'+name+'.csv', 'w', newline='') as csvfile_n:
+         spamwriter_n = csv.writer(csvfile_n, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL)
+         data_p = list(zip(flattened,data_k['LL'].astype("|S10").tolist(),data_k['NSS'].astype("|S10").tolist(),data_k['AUC'].astype("|S10").$
+         for row_n in data_p:
+             row_n = list(row_n)
+             spamwriter_n.writerow(row_n)    
  
     return data
 
@@ -757,8 +780,6 @@ def train(this_directory,
     if startwith is not None:
         restore_from_checkpoint(model, optimizer, scheduler, startwith)
     
-    #writer = SummaryWriter(os.path.join(this_directory, 'log'), flush_secs=30)
-    
     columns = ['epoch', 'timestamp', 'learning_rate', 'loss']
     for metric in validation_metrics:
         columns.append(f'validation_{metric}')
@@ -968,13 +989,13 @@ def run_training_part(training_config, full_config, final_cleanup=False):
     directory = os.path.join(root_directory, training_config['name'])
 
     training_config['train_dataset']=root_directory+'/stimuli_train.hdf5'
-    training_config['TEM_dataset']=root_directory+'/stimuli_train_TEM_dist_n.hdf5'
-    training_config['TEM_dataset_val']=root_directory+'/stimuli_val_TEM_dist_n.hdf5'
-    training_config['fixations']=root_directory+'/fixations_train.hdf5'
+    training_config['TEM_dataset']=root_directory+'/stimuli_train_TEM_pca.hdf5'
+    training_config['TEM_dataset_val']=root_directory+'/stimuli_val_TEM_pca.hdf5'
+    training_config['fixations']=root_directory+'/fixations_train_train.hdf5'
     training_config['val_dataset']=root_directory+'/stimuli_val.hdf5'
     training_config['test_dataset']=root_directory+'/stimuli_val.hdf5'
-    training_config['val_fixations']=root_directory+'/fixations_val.hdf5'
-    training_config['test_fixations']=root_directory+'/fixations_val.hdf5'
+    training_config['val_fixations']=root_directory+'/fixations_val_train.hdf5'
+    training_config['test_fixations']=root_directory+'/fixations_val_train.hdf5'
     train_stimuli, train_fixations, train_centerbias, TEM_train_stimuli, TEM_train_fixations, TEM_train_centerbias = _get_dataset(training_config['train_dataset'],training_config,'train')
 
     if 'val_dataset' in training_config:
@@ -1104,21 +1125,21 @@ def compute_metrics(iter_fn, directory, evaluation_config, training_config):
     metrics = []
     weights = {dataset: [] for dataset in evaluation_config['datasets']}
     
-    results_file = os.path.join('/scratch/c.sapjm10/deepgaze_master_Evaluation/results_TEM.csv')
+    results_file = os.path.join('../results_TEM.csv')
     if not os.path.isfile(results_file):
         for part in iter_fn():
             this_directory = os.getcwd()
 
-            if os.path.isfile(os.path.join('/scratch/c.sapjm10/deepgaze_master_Evaluation/results_TEM.csv')):
-                results = pd.read_csv(os.path.join(this_directory, 'results_TEM.csv'), index_col=0)
+            if os.path.isfile(os.path.join('../results_TEM.csv')):
+                results = pd.read_csv(os.path.join(this_directory, '../results_TEM.csv'), index_col=0)
                 
                 metrics.append(results)
                 
                 for dataset in evaluation_config['datasets']:
                     if dataset == 'validation':
-                    	_stimuli, _fixations, _ = _get_dataset(training_config['val_dataset'], training_config,'train') #_get_dataset_for_part(part, dataset)
+                    	_stimuli, _fixations, _ = _get_dataset(training_config['val_dataset'], training_config,'val') #_get_dataset_for_part(part, dataset)
                     if dataset == 'test':
-                        _stimuli, _fixations, _ = _get_dataset(training_config['test_dataset'], training_config,'val') #_get_dataset_for_part(part, dataset)
+                        _stimuli, _fixations, _ = _get_dataset(training_config['test_dataset'], training_config,'test') #_get_dataset_for_part(part, dataset)
                     weights[dataset].append(len(_fixations.x))
 
                 continue
@@ -1142,7 +1163,6 @@ def compute_metrics(iter_fn, directory, evaluation_config, training_config):
                         _stimuli, _fixations, _centerbias, _stim_TEM, _stim_TEM_fixations, _stim_TEM_centerbias = _get_dataset(training_config['val_dataset'], training_config,'val') #_get_dataset_for_part(part, dataset)
                 if dataset == 'test':
                         _stimuli, _fixations, _centerbias, _stim_TEM, _stim_TEM_fixations, _stim_TEM_centerbias = _get_dataset(training_config['test_dataset'], training_config,'test') #_get_dataset_for_part(part, dataset)
-                #_stimuli, _fixations, _centerbias = #_get_dataset_for_part(part, dataset)
                 
                 
                 if part['config']['iteration_element'] == 'image':
@@ -1254,7 +1274,7 @@ def compute_predictions(iter_fn, directory, prediction_config, training_config):
         data_TEM = []
         for part in iter_fn():
             this_directory = part['directory']
-            checkpoint = os.path.join(this_directory, 'final--300-TEM.py')
+            checkpoint = os.path.join(this_directory, 'final--300-TEM.pth')
             if dataset == 'training':
                 _stimuli, _fixations, _centerbias, _stimuli_TEM, _fixations_TEM, _centerbias_TEM = _get_dataset(training_config['train_dataset'], training_config,'train')
             if dataset == 'validation':
@@ -1267,11 +1287,11 @@ def compute_predictions(iter_fn, directory, prediction_config, training_config):
             data_TEM.append(_stimuli_TEM)
 
         model = pysaliency.models.StimulusDependentModel(models)
-        stimuli, fixations = pysaliency.datasets.concatenate_datasets(dataset_stimuli, dataset_fixations)
-        TEM, fixations = pysaliency.datasets.concatenate_datasets(data_TEM, dataset_fixations)
+        stimuli, fixations_stim = pysaliency.datasets.concatenate_datasets(dataset_stimuli, dataset_fixations)
+        TEM, fixations_TEM = pysaliency.datasets.concatenate_datasets(data_TEM, dataset_fixations)
         file_stimuli = make_file_stimuli(stimuli)
         file_TEM = make_file_stimuli(TEM)
-        pysaliency.precomputed_models.export_model_to_hdf5_n(model,file_stimuli,file_TEM,os.path.join(os.getcwd(),f'{dataset}_predictions_SALICON_baseline.hdf5'))
+        pysaliency.precomputed_models.export_model_to_hdf5_n(model,file_stimuli,file_TEM,fixations_stim,os.path.join(os.getcwd(),f'{dataset}_predictions_SALICON.hdf5'))
 
         
 def run_cleanup(iter_fn, directory, cleanup_config):
@@ -1291,116 +1311,6 @@ def test_crossval_split():
             test_folds=1,
     ))
 
-
-
-'''
-import linecache
-
-os.environ['CUDA_LAUNCH_BLOCKING']='1'
-
-import pynvml3
-from py3nvml import py3nvml
-import torch
-import socket
-
-
-if 'GPU_DEBUG' in os.environ:
-    gpu_profile_fn = f"Host_{socket.gethostname()}_gpu{os.environ['GPU_DEBUG']}_mem_prof-{datetime.datetime.now():%d-%b-%y-%H-%M-%S}.prof.txt"
-    print('profiling gpu usage to ', gpu_profile_fn)
-
-
-## Global variables
-last_tensor_sizes = set()
-last_meminfo_used = 0
-lineno = None
-func_name = None
-filename = None
-module_name = None
-
-
-def gpu_profile(frame, event, arg):
-    # it is _about to_ execute (!)
-    global last_tensor_sizes
-    global last_meminfo_used
-    global lineno, func_name, filename, module_name
-
-    if event == 'line':
-        try:
-            # about _previous_ line (!)
-            if lineno is not None:
-                py3nvml.nvmlInit()
-                handle = py3nvml.nvmlDeviceGetHandleByIndex(int(os.environ['GPU_DEBUG']))
-                meminfo = py3nvml.nvmlDeviceGetMemoryInfo(handle)
-                line = linecache.getline(filename, lineno)
-                where_str = module_name+' '+func_name+':'+str(lineno)
-
-                new_meminfo_used = meminfo.used
-                mem_display = new_meminfo_used-last_meminfo_used if use_incremental else new_meminfo_used
-                with open(gpu_profile_fn, 'a+') as f:
-                    f.write(f"{where_str:<50}"
-                            f":{(mem_display)/1024**2:<7.1f}Mb "
-                            f"{line.rstrip()}\n")
-
-                    last_meminfo_used = new_meminfo_used
-                    if print_tensor_sizes is True:
-                        for tensor in get_tensors():
-                            if not hasattr(tensor, 'dbg_alloc_where'):
-                                tensor.dbg_alloc_where = where_str
-                        new_tensor_sizes = {(type(x), tuple(x.size()), x.dbg_alloc_where)
-                                            for x in get_tensors()}
-                        for t, s, loc in new_tensor_sizes - last_tensor_sizes:
-                            f.write(f'+ {loc:<50} {str(s):<20} {str(t):<10}\n')
-                        for t, s, loc in last_tensor_sizes - new_tensor_sizes:
-                            f.write(f'- {loc:<50} {str(s):<20} {str(t):<10}\n')
-                        last_tensor_sizes = new_tensor_sizes
-                py3nvml.nvmlShutdown()
-
-            # save details about line _to be_ executed
-            lineno = None
-
-            func_name = frame.f_code.co_name
-            filename = frame.f_globals["__file__"]
-            if (filename.endswith(".pyc") or
-                    filename.endswith(".pyo")):
-                filename = filename[:-1]
-            module_name = frame.f_globals["__name__"]
-            lineno = frame.f_lineno
-            
-            #only profile codes within the parenet folder, otherwise there are too many function calls into other pytorch scripts
-            #need to modify the key words below to suit your case.
-            if 'gpu_memory_profiling' not in os.path.dirname(os.path.abspath(filename)):   
-                lineno = None  # skip current line evaluation
-
-            if ('car_datasets' in filename
-                    or '_exec_config' in func_name
-                    or 'gpu_profile' in module_name
-                    or 'tee_stdout' in module_name):
-                lineno = None  # skip othe unnecessary lines
-            
-            return gpu_profile
-
-        except (KeyError, AttributeError):
-            pass
-
-    return gpu_profile
-
-
-def get_tensors(gpu_only=True):
-    import gc
-    for obj in gc.get_objects():
-        try:
-            if torch.is_tensor(obj):
-                tensor = obj
-            elif hasattr(obj, 'data') and torch.is_tensor(obj.data):
-                tensor = obj.data
-            else:
-                continue
-
-            if tensor.is_cuda:
-                yield tensor
-        except Exception as e:
-            pass
-'''
 
 for training_part in config['training']['parts']:
     if args.training_part is not None and training_part['name'] != args.training_part:
