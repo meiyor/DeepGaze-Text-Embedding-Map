@@ -7,7 +7,6 @@ from pysaliency.datasets import create_subset
 from pysaliency.utils import remove_trailing_nans
 import torch
 from tqdm import tqdm
-#import torch.utils.data.Dataset as Dataset
 from torch.utils.data import Dataset
 
 def ensure_color_image(image):
@@ -74,7 +73,6 @@ class ImageDataset(Dataset):
             image = image.transpose(2, 0, 1)
 
             if self.cached:
-                #print(key,'key')
                 xs = self._xs_cache.pop(key)
                 ys = self._ys_cache.pop(key)
             else:
@@ -155,10 +153,6 @@ class ImageDataset_TEM(Dataset):
             centerbias_prediction = self.centerbias_model.log_density(image)
             file_name = self.stimuli.filenames[key]
             
-            #print(np.squeeze(self.fixations.y_hist[key]),np.squeeze(self.fixations.y_hist[key]).shape,'shapej')
-            #x_hist = remove_trailing_nans(self.fixations.x_hist)
-            #y_hist = remove_trailing_nans(self.fixations.y_hist)
-            #print(np.squeeze(self.fixations.x_hist),np.squeeze(self.fixations.y_hist).shape,'shapen')
             x_hist = self.fixations.x_hist
             y_hist= self.fixations.y_hist
             
@@ -185,7 +179,7 @@ class ImageDataset_TEM(Dataset):
             x_hist=x_hist[inds]
             y_hist=y_hist[inds]
            
-            new_inds=np.random.randint(0,160,100)
+            new_inds=np.random.randint(0,160,100) ## change this depending on how you process the fixations file
 
             data = {
                 "image": image,
@@ -199,7 +193,6 @@ class ImageDataset_TEM(Dataset):
                 "centerbias": centerbias_prediction,
                 "centerbias_TEM":centerbias_TEM_prediction,
             }
-            #"centerbias_TEM":centerbias_TEM_prediction,
 
             if self.average == 'image':
                 data['weight'] = 1.0
@@ -290,7 +283,6 @@ class FixationMaskTransform(object):
         x = item.pop('x')
         y = item.pop('y')
 
-        # inds, values = x_y_to_sparse_indices(x, y)
         inds = np.array([y, x])
         values = np.ones(len(y), dtype=np.int)
         inds[0,np.where(inds[0,:]>=shape[0])]=inds[0,np.where(inds[0,:]>=shape[0])]-1
