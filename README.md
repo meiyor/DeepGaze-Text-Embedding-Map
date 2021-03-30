@@ -74,5 +74,5 @@ All the metrics show a significant improvement for all the paired test as we sho
 A great example of the metrics example using the TEM as features is shown on the next figure describing the saliency map pattern using a jet colormap, and showing the fixations groundtruth, the panoptic annotatio image, and the results for the DG baseline and our proposed DG+TEM.
 
 
-<img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/example_saliency_pattern.jpg" width="800" height="600">
+<img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/example_saliency_pattern.jpg" width="850" height="500">
 
