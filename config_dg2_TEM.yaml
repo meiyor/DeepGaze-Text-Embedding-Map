@@ -99,7 +99,6 @@ training:
   lr_scheduler:
     type: torch.optim.lr_scheduler.MultiStepLR
     params:
-     #milestones: [20, 25, 50, 60, 70, 90, 105, 120]
      milestones: [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33]
   batch_size: 10
   iteration_element: image
@@ -127,8 +126,6 @@ training:
       compute_metrics:
         metrics: ['IG', 'LL', 'AUC', 'NSS']
         datasets: ['training', 'validation']
-    #final_cleanup:
-    #  cleanup_checkpoints: true
   - name: Baseline
     train_dataset:
         stimuli: pysaliency_datasets/MIT1003_twosize_initial_fixation/stimuli.hdf5
