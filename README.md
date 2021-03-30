@@ -51,7 +51,7 @@ log.txt files will present you the current status of the learning, or if you wan
 
 A LL evolution through the training epochs could be observed in the following Figure including TEM features. An [AdaBound](https://github.com/Luolc/AdaBound) optimizer and a final Drop-out layer (before the Finalizer) must be added to the network for avoiding overfitting. The full pipeline of out semantic-based gaze prediction is shown in the following Figure:
 
-<img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/TEM_ADAM_bound.jpg" width="700" height="400">
+<img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/pipeline_def_new_no_scan.jpg" width="700" height="400">
 
 The performance comparison between the Deep-Gaze-II baseline and the DeepGaze + TEM is the following:
 
