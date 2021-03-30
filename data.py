@@ -66,6 +66,8 @@ class ImageDataset(Dataset):
     def __getitem__(self, key):
         if not self.cached or key not in self._cache:
             image = np.array(self.stimuli.stimuli[key])
+            #print(self.stimuli.stimuli,self.stimuli,'val_stimuli')
+            file_name = self.stimuli.filenames[key]
             centerbias_prediction = self.centerbias_model.log_density(image)
 
             image = ensure_color_image(image).astype(np.float16)
@@ -82,6 +84,7 @@ class ImageDataset(Dataset):
 
             data = {
                 "image": image,
+                "file_name":file_name,
                 "x": xs,
                 "y": ys,
                 "centerbias": centerbias_prediction,
@@ -106,7 +109,7 @@ class ImageDataset(Dataset):
 
 
 class ImageDataset_TEM(Dataset):
-    def __init__(self, stimuli, TEM, fixations, centerbias_model=None, centerbias_TEM=None, transform=None, cached=True, average='fixation'):
+    def __init__(self, stimuli, TEM, fixations, centerbias_model=None, centerbias_TEM=None, transform=None, cached=True, included_fixations=[0], average='fixation'):
         
         self.stimuli = stimuli
         self.fixations = fixations
@@ -117,6 +120,16 @@ class ImageDataset_TEM(Dataset):
         self.average = average
 
         self.cached = cached
+         
+        if isinstance(included_fixations, int):
+            if included_fixations < 0:
+                included_fixations = [-1 - i for i in range(-included_fixations)]
+            else:
+                raise NotImplementedError()
+
+        self.included_fixations = included_fixations
+        self.fixation_counts = Counter(fixations.n) 
+        
         if cached:
             self._cache = {}
             print("Populating fixations cache")
@@ -140,6 +153,15 @@ class ImageDataset_TEM(Dataset):
             image = np.array(self.stimuli.stimuli[key])
             TEM_image = np.array(self.TEM.stimuli[key])
             centerbias_prediction = self.centerbias_model.log_density(image)
+            file_name = self.stimuli.filenames[key]
+            
+            #print(np.squeeze(self.fixations.y_hist[key]),np.squeeze(self.fixations.y_hist[key]).shape,'shapej')
+            #x_hist = remove_trailing_nans(self.fixations.x_hist)
+            #y_hist = remove_trailing_nans(self.fixations.y_hist)
+            #print(np.squeeze(self.fixations.x_hist),np.squeeze(self.fixations.y_hist).shape,'shapen')
+            x_hist = self.fixations.x_hist
+            y_hist= self.fixations.y_hist
+            
             if not(self.centerbias_TEM == None):
                centerbias_TEM_prediction = self.centerbias_TEM.log_density(TEM_image)
             else:
@@ -149,6 +171,8 @@ class ImageDataset_TEM(Dataset):
             image = image.transpose(2, 0, 1)
             TEM_image = ensure_color_image(TEM_image).astype(np.float32)
             TEM_image = TEM_image.transpose(2, 0, 1)
+            inds = self.fixations.n == key
+            #print(inds,'inds')
 
             if self.cached:
                 xs = self._xs_cache.pop(key)
@@ -157,6 +181,11 @@ class ImageDataset_TEM(Dataset):
                 inds = self.fixations.n == key
                 xs = np.array(self.fixations.x_int[inds], dtype=np.long)
                 ys = np.array(self.fixations.y_int[inds], dtype=np.long)
+            
+            x_hist=x_hist[inds]
+            y_hist=y_hist[inds]
+           
+            new_inds=np.random.randint(0,160,100)
 
             data = {
                 "image": image,
@@ -164,6 +193,9 @@ class ImageDataset_TEM(Dataset):
                 "TEM": TEM_image,
                 "x": xs,
                 "y": ys,
+                "file_name":file_name,
+                "x_hist": x_hist[new_inds],
+                "y_hist": y_hist[new_inds],
                 "centerbias": centerbias_prediction,
                 "centerbias_TEM":centerbias_TEM_prediction,
             }
@@ -224,8 +256,8 @@ class FixationDataset(torch.utils.data.Dataset):
         image = ensure_color_image(image).astype(np.float32)
         image = image.transpose(2, 0, 1)
         
-        #x_hist = remove_trailing_nans(self.fixations.x_hist[key])
-        #y_hist = remove_trailing_nans(self.fixations.y_hist[key])
+        x_hist = remove_trailing_nans(self.fixations.x_hist[key])
+        y_hist = remove_trailing_nans(self.fixations.y_hist[key])
         
         x_hist = self.fixations.x_hist[key]
         y_hist= self.fixations.y_hist[key]
