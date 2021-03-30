@@ -63,6 +63,6 @@ The performance comparison between the [DeepGaze](https://github.com/matthias-k/
 A statistical comparison have been using paired test evaluating the normality of each metrics finding the following effect plot and corrected p-values.
 All the metrics show a significant improvement for all paired test methods.
 
-<img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/plot_effect_IG.jpg" width="700" height="400">
+<img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/plot_effect_IG.jpg" width="750" height="350">
 
 
