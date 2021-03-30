@@ -123,9 +123,6 @@ for file_name in onlyfiles_train:
                id_inx=segment_burst[i]['id']
                id_name=segment_burst[i]['category_id']
                mask = segmentation_img == id_inx
-               #mask_new = np.transpose(np.repeat(mask[np.newaxis,...],300,axis=0),(1,2,0))
-               #print(id_inx,np.shape(mask_new),np.shape(mask),'id_inx')
-               ## look for object name before matching that name with the embedding file
                for c in range(0,len(category_res)):
                    if category_res[c]['id'] == id_name:
                       name_object=category_res[c]['name']
@@ -136,12 +133,10 @@ for file_name in onlyfiles_train:
                    if name_vectors[q]==name_object:
                      pos_n=q
                      break
-               #print(ind_val,pos_n,vector_data[ind_val],vector_data[pos_n],'vals')
                val_dist = cdist(np.reshape(vector_data[ind_val],(-1,300)),np.reshape(vector_data[pos_n],(-1,300)),'cosine')
-               img_sal[mask]=np.concatenate((np.atleast_1d(val_dist[0][0]),principalComponents[pos_n,0:101]))
+               img_sal[mask]=np.concatenate((np.atleast_1d(val_dist[0][0]),principalComponents[pos_n,0:20]))
            img_sal[boundaries_img] = np.zeros((21))
            break
-           #segmentation=annotation_object[k]['segments_info']
     print('COCO_train2014_'+file_annotated[0]+'.tif',cc)
     cc=cc+1
     imwrite(os.path.join(output_dir,'COCO_train2014_'+file_annotated[0]+'.tif'),img_sal,compress=6)
