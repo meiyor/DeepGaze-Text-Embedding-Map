@@ -581,14 +581,12 @@ def train_epoch(model, dataset, optimizer, device):
         optimizer.step()
         del image, centerbias, fixation_mask, x_hist, y_hist, weights, durations, log_density
 
-    #del pbar, batch
     return np.average(losses, weights=batch_weights)
 
 
 def restore_from_checkpoint(model, optimizer, scheduler, path):
     print("Restoring from", path)
     data = torch.load(path)
-    #print(data,'data')
     if 'optimizer' in data:
         # checkpoint contains training progress
         model.load_state_dict(data['model'])
@@ -636,12 +634,8 @@ def visualize(model, vis_data_loader):
     model.eval()
     
     device = next(model.parameters()).device
-    #device = 'cuda:1'
     print('dev',device)      
     batch = next(iter(vis_data_loader))
-    
-    #print(batch,'hi',vis_data_loader)
-    #print(iter(vis_data_loader))
 
     image = batch['image'].to(device)
     TEM = batch['TEM'].to(device)
@@ -744,11 +738,9 @@ def train(this_directory,
     elif iteration_element == 'fixation':
         dataset_class = lambda *args, **kwargs: FixationDataset(*args, **kwargs, included_fixations=model.included_fixations)
     
-    print('hey',iteration_element,train_stimuli,train_fixations,'hey')
     train_dataset = dataset_class(train_stimuli,TEM_train_stimuli, train_fixations, train_baseline, TEM_train_baseline, transform=FixationMaskTransform(), average=averaging_element)
     val_dataset = dataset_class(val_stimuli,TEM_val_stimuli ,val_fixations, val_baseline, TEM_val_baseline, transform=FixationMaskTransform(), average=averaging_element)
-
-    #print('wii',train_dataset)    
+   
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
         batch_sampler=ImageDatasetSampler(train_dataset, batch_size=batch_size, ratio_used=ratio_used),
@@ -926,7 +918,7 @@ def _get_dataset(dataset_config, training_config=None, string_indicator=None):
     
     if string_indicator == 'val':
         dataset_config['stimuli']=dataset_config['name']
-        dataset_config['fixations']=root_directory+'/fixations_val.hdf5'
+        dataset_config['fixations']=root_directory+'/fixations_val_train.hdf5'
         
         stimuli = pysaliency.external_datasets.read_hdf5(dataset_config['stimuli'])
         fixations = pysaliency.external_datasets.read_hdf5(dataset_config['fixations'])
@@ -935,7 +927,7 @@ def _get_dataset(dataset_config, training_config=None, string_indicator=None):
     
     if string_indicator == 'test':
         dataset_config['stimuli']=dataset_config['name']
-        dataset_config['fixations']=root_directory+'/fixations_train.hdf5'
+        dataset_config['fixations']=root_directory+'/fixations_train_train.hdf5'
         
         stimuli = pysaliency.external_datasets.read_hdf5(dataset_config['stimuli'])
         fixations = pysaliency.external_datasets.read_hdf5(dataset_config['fixations'])
@@ -952,12 +944,12 @@ def _get_dataset(dataset_config, training_config=None, string_indicator=None):
 
     if string_indicator == 'train':
         centerbias_path = root_directory+'/centerbias_train.hdf5'
-        centerbias_TEM_path = root_directory+'/centerbias_train_TEM_dist_n.hdf5'
+        centerbias_TEM_path = root_directory+'/centerbias_train_TEM_pca.hdf5'
         #_get_from_config('centerbias', dataset_config, training_config)
     if string_indicator == 'val':
         #centerbias_path = '/gpfs/scratch/jmayortorres/deepgaze_pytorch-master/centerbias_optimized_cross.hdf5'
         centerbias_path = root_directory+'/centerbias_val.hdf5'
-        centerbias_TEM_path = root_directory+'/centerbias_val_TEM_dist_n.hdf5'
+        centerbias_TEM_path = root_directory+'/centerbias_val_TEM_pca.hdf5'
     if string_indicator == 'test':
         centerbias_path = root_directory+'/centerbias_val.hdf5'     
         centerbias_TEM_path = root_directory+'/centerbias_val_TEM_dist_n.hdf5'
@@ -968,7 +960,7 @@ def _get_dataset(dataset_config, training_config=None, string_indicator=None):
     return stimuli, fixations, centerbias, stimuli_TEM, fixations_TEM, centerbias_TEM
 
 def iterate_crossvalidation_config(stimuli, fixations, crossval_config):
-    for fold_no, (train_stimuli, train_fixations, val_stimuli, val_fixations, test_stimuli, test_fixations)             in enumerate(iterate_crossvalidation(
+    for fold_no, (train_stimuli, train_fixations, val_stimuli, val_fixations, test_stimuli, test_fixations) in enumerate(iterate_crossvalidation(
                 stimuli, fixations,
                 crossval_folds=crossval_config['folds'],
                 val_folds=crossval_config['val_folds'],
