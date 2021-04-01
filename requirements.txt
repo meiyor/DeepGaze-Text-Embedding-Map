@@ -7,3 +7,4 @@ python-csv==0.0.13
 subprocess==0.0.8
 pandas==1.2.3
 PyYAML==5.4.1
+collection==0.1.6
