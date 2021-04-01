@@ -10,7 +10,7 @@ pip install torch===1.6.0 torchvision===0.7.0 -f https://download.pytorch.org/wh
 ```
 Subsequently, download the image data from the following links:
 
-[COCO images](https://drive.google.com/uc?export=download&id=1RM4gXlSIic22HvYHaS5XOGmjcLDSUiUv)
+[COCO images](https://drive.google.com/file/d/1RM4gXlSIic22HvYHaS5XOGmjcLDSUiUv/view?usp=sharing)
 
 For the fixation data use the hdf5 files included in the **experiments_root/** folder
 
