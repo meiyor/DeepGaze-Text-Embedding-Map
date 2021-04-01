@@ -8,6 +8,7 @@ First install all the dependencies running, please be sure you have pip installe
 pip install requirements.txt
 pip install torch===1.6.0 torchvision===0.7.0 -f https://download.pytorch.org/whl/torch_stable.html
 pip install git+https://github.com/cocodataset/panopticapi.git
+pip install -U mittens
 pip install random
 ```
 Subsequently, download the image data from the following links:
