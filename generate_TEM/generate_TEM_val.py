@@ -107,8 +107,12 @@ for file_name in onlyfiles_val:
               ind_val=5
            elif cat_val=='office':
               ind_val=6
-           else:
+           elif cat_val=='tennis_court':
               ind_val=7
+           elif cat_val=='restaurant':
+              ind_val=8
+           else:
+              ind_val=9
            break
     for k in range(0,len(annotation_object)):
        file_annotated=annotation_object[k]['file_name'].split('.')
