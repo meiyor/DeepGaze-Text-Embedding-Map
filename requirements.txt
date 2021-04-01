@@ -1,0 +1,6 @@
+# To install all thenecessary packages run:
+#
+#    pip install requirements.txt
+#
+schema==0.7.1
+python-csv==0.0.13
