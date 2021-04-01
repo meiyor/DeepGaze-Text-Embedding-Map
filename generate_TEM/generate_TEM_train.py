@@ -108,7 +108,7 @@ for file_name in onlyfiles_train:
               ind_val=6
            elif cat_val=='tennis_court':
               ind_val=7
-           elif cat_val=='restauran':
+           elif cat_val=='restaurant':
               ind_val=8
            else:
               ind_val=9
