@@ -3,7 +3,7 @@ This repository includes the implementation of **DeepGaze** adding the **Text-Em
 
 We used a data intersection between [COCO](https://cocodataset.org/#home) and [SALICON](http://salicon.net/) to perform our evaluations using the fixations from SALICON and the panoptic annotations/segmentations from COCO.
 
-First install all the dependencies running, please be sure you have pip installed and updated on your bash entry:
+First install all the dependencies running the following command, please be sure you have pip installed and updated on your bash entry before run this:
 ```bash
 pip install requirements.txt
 pip install torch===1.6.0 torchvision===0.7.0 -f https://download.pytorch.org/whl/torch_stable.html
