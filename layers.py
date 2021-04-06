@@ -151,15 +151,15 @@ class BatchNorm(nn.Module):
             repeats=tensor.shape[3],
             dim=2
         )
-     
+
     def forward(self, input):
-        normalized_shape = (self.features, input.shape[2], input.shape[3])
+        #normalized_shape = (self.features, input.shape[2], input.shape[3])
         weight = self.adjust_parameter(input, self.weight)
         bias = self.adjust_parameter(input, self.bias)
         b, c, h, w = input.size()
-        running_mean = self.running_mean.repeat(b)
-        running_var = self.running_var.repeat(b)
-        #print(input,'1',normalized_shape,'2',weight,'3',bias,'params')
+        #running_mean = self.running_mean.repeat(b)
+        #running_var = self.running_var.repeat(b)
+        # print(input,'1',normalized_shape,'2',weight,'3',bias,'params')
         return F.batch_norm(
             input, weight=weight, bias=bias, eps=self.eps)
 
@@ -167,16 +167,20 @@ class BatchNorm(nn.Module):
         return '{features}, eps={eps}, ' \
             'center={center}, scale={scale}'.format(**self.__dict__)
 
+
 def gaussian_filter_1d(tensor, dim, sigma, truncate=4, kernel_size=None, padding_mode='replicate', padding_value=0.0):
     sigma = torch.as_tensor(sigma, device=tensor.device, dtype=tensor.dtype)
 
     if kernel_size is not None:
-        kernel_size = torch.as_tensor(kernel_size, device=tensor.device, dtype=torch.int64)
+        kernel_size = torch.as_tensor(
+            kernel_size, device=tensor.device, dtype=torch.int64)
     else:
         if torch.isnan(sigma):
-                kernel_size = torch.as_tensor(2 * torch.ceil(truncate * torch.as_tensor(1.00, device=tensor.device, dtype=torch.float64)) + 1, device=tensor.device, dtype=torch.int64)
+            kernel_size = torch.as_tensor(2 * torch.ceil(truncate * torch.as_tensor(
+                1.00, device=tensor.device, dtype=torch.float64)) + 1, device=tensor.device, dtype=torch.int64)
         else:
-                kernel_size = torch.as_tensor(2 * torch.ceil(truncate * sigma) + 1, device=tensor.device, dtype=torch.int64)
+            kernel_size = torch.as_tensor(
+                2 * torch.ceil(truncate * sigma) + 1, device=tensor.device, dtype=torch.int64)
 
     kernel_size = kernel_size.detach()
 
@@ -205,7 +209,8 @@ def gaussian_filter_1d(tensor, dim, sigma, truncate=4, kernel_size=None, padding
 
     tensor_ = F.pad(tensor, padding, padding_mode, padding_value)
     # create gaussian kernel from grid using current sigma
-    kernel = torch.exp(-0.5 * (grid.type('torch.cuda.FloatTensor') / sigma) ** 2)
+    kernel = torch.exp(-0.5 *
+                       (grid.type('torch.cuda.FloatTensor') / sigma) ** 2)
     kernel = kernel / kernel.sum()
 
     # convolve input with gaussian kernel
@@ -234,7 +239,8 @@ class GaussianFilterNd(nn.Module):
         super(GaussianFilterNd, self).__init__()
 
         self.dims = dims
-        self.sigma = nn.Parameter(torch.tensor(sigma, dtype=torch.float32), requires_grad=trainable)  # default: no optimization
+        self.sigma = nn.Parameter(torch.tensor(
+            sigma, dtype=torch.float32), requires_grad=trainable)  # default: no optimization
         self.truncate = truncate
         self.kernel_size = kernel_size
 
@@ -266,12 +272,9 @@ class Conv2dMultiInput(nn.Module):
 
         for k, _in_channels in enumerate(in_channels):
             if _in_channels:
-                print(f'conv_part{k}',_in_channels,'part')
-                if not(k==1):   
-                    setattr(self, f'conv_part{k}', nn.Conv2d(_in_channels, out_channels, kernel_size, bias=bias))
-                else:
-                    #print('transpose',k,_in_channels)
-                    setattr(self, f'conv_part{k}', nn.ConvTranspose2d(_in_channels, out_channels, kernel_size, bias=bias))
+                print(f'conv_part{k}', _in_channels, 'part')
+                setattr(self, f'conv_part{k}', nn.Conv2d(
+                    _in_channels, out_channels, kernel_size, bias=bias))
 
     def forward(self, tensors):
         assert len(tensors) == len(self.in_channels)
@@ -284,7 +287,7 @@ class Conv2dMultiInput(nn.Module):
             if out is None:
                 out = _out
             else:
-                out[:,:,0:np.shape(_out)[2],0:np.shape(_out)[3]] += _out
+                out[:, :, 0:np.shape(_out)[2], 0:np.shape(_out)[3]] += _out
 
         return out
 
@@ -304,7 +307,8 @@ class LayerNormMultiInput(nn.Module):
 
         for k, _features in enumerate(features):
             if _features:
-                setattr(self, f'layernorm_part{k}', LayerNorm(_features, eps=eps, center=center, scale=scale))
+                setattr(self, f'layernorm_part{k}', LayerNorm(
+                    _features, eps=eps, center=center, scale=scale))
 
     def forward(self, tensors):
         assert len(tensors) == len(self.features)
