@@ -25,17 +25,19 @@ class VGGInputNormalization(nn.Module):
             tensor /= 255.0
         else:
             tensor = tensor / 255.0
-        #print(tensor.type())
-        #print(self.mean.type())
-        #print(tensor.get_device(),self.mean.get_device(),'device_1')
-        #if tensor.shape[3]==3:
-        #print(self.mean.shape,self.std.shape,'shapes')
-        tensor = tensor.type('torch.FloatTensor') - self.mean.type('torch.FloatTensor')
-        tensor = tensor.type('torch.FloatTensor')/self.std.type('torch.FloatTensor')
+        # print(tensor.type())
+        # print(self.mean.type())
+        # print(tensor.get_device(),self.mean.get_device(),'device_1')
+        # if tensor.shape[3]==3:
+        # print(self.mean.shape,self.std.shape,'shapes')
+        tensor = tensor.type('torch.FloatTensor') - \
+            self.mean.type('torch.FloatTensor')
+        tensor = tensor.type('torch.FloatTensor') / \
+            self.std.type('torch.FloatTensor')
         #tensor[:,:,0:3] = tensor[:,:,0:3].type('torch.cuda.FloatTensor') - self.mean.type('torch.cuda.FloatTensor')
         #tensor[:,:,0:3] = tensor[:,:,0:3].type('torch.cuda.FloatTensor')/self.std.type('torch.cuda.FloatTensor')
-        #tensor=tensor.type('torch.cuda.FloatTensor')
-        #print(tensor.type())
+        # tensor=tensor.type('torch.cuda.FloatTensor')
+        # print(tensor.type())
 
         return tensor
 
