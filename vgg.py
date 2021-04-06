@@ -25,8 +25,10 @@ class VGGInputNormalization(nn.Module):
             tensor /= 255.0
         else:
             tensor = tensor / 255.0
-        tensor = tensor.type('torch.cuda.FloatTensor') - self.mean.type('torch.cuda.FloatTensor')
-        tensor = tensor.type('torch.cuda.FloatTensor')/self.std.type('torch.cuda..FloatTensor')
+        tensor = tensor.type('torch.cuda.FloatTensor') - \
+            self.mean.type('torch.cuda.FloatTensor')
+        tensor = tensor.type('torch.cuda.FloatTensor') / \
+            self.std.type('torch.cuda..FloatTensor')
 
         return tensor
 
