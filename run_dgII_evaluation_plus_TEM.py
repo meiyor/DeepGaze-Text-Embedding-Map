@@ -1,5 +1,5 @@
-## all packages added here ** please remember to add all of them before running the traning or testing
-## to run roc.c frst cythonize the roc.pyc depending on your architecture using ipython or cython
+# all packages added here ** please remember to add all of them before running the traning or testing
+# to run roc.c frst cythonize the roc.pyc depending on your architecture using ipython or cython
 import os
 import argparse
 import schema
@@ -29,16 +29,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-## add the new DeepGaze_TEM object to run the new architecture including TEM, Feature extractor is the fixed VGG encoder
+# add the new DeepGaze_TEM object to run the new architecture including TEM, Feature extractor is the fixed VGG encoder
 from deepgaze import DeepGaze_TEM, FeatureExtractor
 
-# use Adabound to prevent easier overffiting, and have the same level of SGD learning and the same speed of Adam 
+# use Adabound to prevent easier overffiting, and have the same level of SGD learning and the same speed of Adam
 from adabound import AdaBound
 
 from layers import LayerNorm, Conv2dMultiInput, Bias, LayerNormMultiInput
 from boltons.iterutils import chunked
 
-## export pysaliency codes
+# export pysaliency codes
 from pysaliency.baseline_utils import BaselineModel, CrossvalidatedBaselineModel
 from pysaliency.precomputed_models import HDF5Model
 from pysaliency import precomputed_models
@@ -55,11 +55,12 @@ from boltons.cacheutils import cached, LRU
 
 import sys
 
-### set this flags if you have multiple GPU cores you want to use in particular
-#torch.cuda.set_device('cuda:0')
-#os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
+# set this flags if you have multiple GPU cores you want to use in particular
+# torch.cuda.set_device('cuda:0')
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 
 # coding: utf-8
+
 
 class GELU(nn.Module):
     """
@@ -117,14 +118,17 @@ if args.sub_experiment is not None:
 
 if args.sub_experiment_no is not None:
     import glob
-    
-    sub_experiment_candidates = glob.glob(os.path.join(root_directory, f'experiment{args.sub_experiment_no:04d}*'))
+
+    sub_experiment_candidates = glob.glob(os.path.join(
+        root_directory, f'experiment{args.sub_experiment_no:04d}*'))
 
     if not sub_experiment_candidates:
-        raise ValueError("No subexperiment with number", args.sub_experiment_no)
+        raise ValueError("No subexperiment with number",
+                         args.sub_experiment_no)
     elif len(sub_experiment_candidates) > 1:
-        raise ValueError("Too many candidates with number", args.sub_experiment_no)
-    
+        raise ValueError("Too many candidates with number",
+                         args.sub_experiment_no)
+
     root_directory, = sub_experiment_candidates
 
 
@@ -132,9 +136,9 @@ def convert_to_update_schema(full_schema, create_schema=True):
     """Remove all defaults from schema to allow it to be used as update"""
     if isinstance(full_schema, schema.Schema):
         full_schema = full_schema.schema
-    
+
     if isinstance(full_schema, dict):
-        ## read the schema format
+        # read the schema format
         new_schema = {}
         for key, item in full_schema.items():
             if not isinstance(key, schema.Optional):
@@ -143,15 +147,15 @@ def convert_to_update_schema(full_schema, create_schema=True):
             else:
                 # make sure to create new optional without default instead of removing default from existing
                 key = schema.Optional(key.key)
-            
+
             if isinstance(item, (schema.Schema, dict)):
                 item = convert_to_update_schema(item, create_schema=False)
-            
+
             new_schema[key] = item
-        
+
         if create_schema:
             new_schema = schema.Schema(new_schema)
-        
+
         return new_schema
 
     return full_schema
@@ -181,14 +185,14 @@ model_spec = schema.Schema({
     'include_previous_y': bool,
     'included_durations': [int],
     schema.Optional('fixated_scopes', default=[]): [str],
-    'features': { str: {
+    'features': {str: {
         'type': str,
         schema.Optional('params', default={}): dict,
         'used_features': [str],
     }},
     'scanpath_network': schema.Or(readout_network_spec, None),
     'saliency_network': readout_network_spec,
-    'saliency_network_TEM':readout_network_spec,
+    'saliency_network_TEM': readout_network_spec,
     'fixation_selection_network': readout_network_spec,
     'fixation_selection_network_TEM': readout_network_spec,
     'conv_all_parameters': readout_network_spec,
@@ -250,11 +254,11 @@ default_scheduler = lr_scheduler_spec.validate({
 training_part_spec = schema.Schema({
     'name': str,
     'train_dataset': dataset_spec,
-    
+
     schema.Optional('optimizer'): convert_to_update_schema(optimizer_spec),
     schema.Optional('lr_scheduler'): convert_to_update_schema(lr_scheduler_spec),
     schema.Optional('minimal_learning_rate'): number,
-    
+
     schema.Optional('iteration_element'): schema.Or('fixation', 'image'),
     schema.Optional('averaging_element'): schema.Or('fixation', 'image'),
     schema.Optional('model'): convert_to_update_schema(model_spec),
@@ -282,19 +286,19 @@ config_schema = schema.Schema({
         schema.Optional('iteration_element', default='fixation'): schema.Or('fixation', 'image'),
         schema.Optional('averaging_element', default='fixation'): schema.Or('fixation', 'image'),
         schema.Optional('training_dataset_ratio_per_epoch', default=0.25): float,
-        
+
         'parts': [training_part_spec],
     }
 })
 
 
-## setting_up the confing file
-root_directory='experiments_root/' ## define the root directory a-priori
+# setting_up the confing file
+root_directory = 'experiments_root/'  # define the root directory a-priori
 config = yaml.load(open('config_dg2_TEM.yaml'))
 
 config = config_schema.validate(config)
 print(yaml.safe_dump(config))
-config_schema.validate(config);
+config_schema.validate(config)
 
 
 def dict_merge(dct, merge_dct):
@@ -310,7 +314,7 @@ def dict_merge(dct, merge_dct):
             dict_merge(dct[k], merge_dct[k])
         else:
             dct[k] = merge_dct[k]
-    
+
     return dct
 
 
@@ -330,8 +334,9 @@ def reverse_dict_merge(dct, fallback_dct):
             pass
         else:
             dct[k] = fallback_dct[k]
-    
+
     return dct
+
 
 bare_training_config = dict(config['training'])
 del bare_training_config['parts']
@@ -341,7 +346,7 @@ for part in config['training']['parts']:
     reverse_dict_merge(part, deepcopy(bare_training_config))
 
 
-config_schema.validate(config);
+config_schema.validate(config)
 
 if is_notebook:
     get_ipython().run_line_magic('matplotlib', 'inline')
@@ -351,15 +356,14 @@ if is_notebook:
 else:
     import matplotlib
     matplotlib.use('agg')
-    
-    import matplotlib.pyplot as plt
 
+    import matplotlib.pyplot as plt
 
 
 def build_readout_network_from_config(readout_config):
     layers = OrderedDict()
     input_channels = readout_config['input_channels']
-    
+
     for k, layer_spec in enumerate(readout_config['layers']):
         if layer_spec['layer_norm']:
             if isinstance(input_channels, int):
@@ -367,21 +371,20 @@ def build_readout_network_from_config(readout_config):
             else:
                 layers[f'layernorm{k}'] = LayerNormMultiInput(input_channels)
 
-
         if isinstance(input_channels, int):
-            if readout_config['layers'][0]['name']=='convtrans':
-              layers[f'conv{k}'] = nn.ConvTranspose2d(input_channels, layer_spec['channels'], (1, 1), bias=False)
+            if readout_config['layers'][0]['name'] == 'convtrans':
+                layers[f'conv{k}'] = nn.ConvTranspose2d(input_channels, layer_spec['channels'], (1, 1), bias=False)
             else:
-              layers[f'conv{k}'] = nn.Conv2d(input_channels, layer_spec['channels'], (1, 1), bias=False)
+                layers[f'conv{k}'] = nn.Conv2d(input_channels, layer_spec['channels'], (1, 1), bias=False)
         else:
             layers[f'conv{k}'] = Conv2dMultiInput(input_channels, layer_spec['channels'], (1, 1), bias=False)
         input_channels = layer_spec['channels']
-        
-        #assert not layer_spec['batch_norm']
-        
+
+        # assert not layer_spec['batch_norm']
+
         if layer_spec['bias']:
             layers[f'bias{k}'] = Bias(input_channels)
-        
+
         if layer_spec['activation_fn'] == 'relu':
             layers[f'relu{k}'] = nn.ReLU()
         elif layer_spec['activation_fn'] == 'softplus':
@@ -396,18 +399,18 @@ def build_readout_network_from_config(readout_config):
             pass
         else:
             raise ValueError(layer_spec['activation_fn'])
-    
+
     return nn.Sequential(layers)
 
 
 def import_class(name):
     module_name, class_name = name.rsplit('.', 1)
-    #module_name='vgg'
-    print(module_name,class_name)
+    # module_name='vgg'
+    print(module_name, class_name)
     if module_name == 'deepgaze_pytorch.features.vgg':
-      module_name='vgg'
+        module_name = 'vgg'
     if module_name == 'torch.optim':
-      module_name='adabound'
+        module_name = 'adabound'
     module = importlib.import_module(module_name)
     return getattr(module, class_name)
 
@@ -416,23 +419,31 @@ def build_model(model_config):
     assert len(model_config['features']) == 1
     features_key, = list(model_config['features'].keys())
     features_config = model_config['features'][features_key]
-    
+
     feature_class = import_class(features_config['type'])
     features = feature_class(**features_config['params'])
-    
-    feature_extractor = FeatureExtractor(features, features_config['used_features'])
-    saliency_network = build_readout_network_from_config(model_config['saliency_network'])
-    saliency_network_TEM = build_readout_network_from_config(model_config['saliency_network_TEM'])
+
+    feature_extractor = FeatureExtractor(
+        features, features_config['used_features'])
+    saliency_network = build_readout_network_from_config(
+        model_config['saliency_network'])
+    saliency_network_TEM = build_readout_network_from_config(
+        model_config['saliency_network_TEM'])
     if model_config['scanpath_network'] is not None:
-        scanpath_network = build_readout_network_from_config(model_config['scanpath_network'])
+        scanpath_network = build_readout_network_from_config(
+            model_config['scanpath_network'])
     else:
         scanpath_network = None
-    fixation_selection_network = build_readout_network_from_config(model_config['fixation_selection_network'])
-    fixation_selection_network_TEM = build_readout_network_from_config(model_config['fixation_selection_network_TEM'])
-    conv_all_parameters = build_readout_network_from_config(model_config['conv_all_parameters'])
-    conv_all_parameters_trans = build_readout_network_from_config(model_config['conv_all_parameters_trans'])
-    
-    ### new model definition
+    fixation_selection_network = build_readout_network_from_config(
+        model_config['fixation_selection_network'])
+    fixation_selection_network_TEM = build_readout_network_from_config(
+        model_config['fixation_selection_network_TEM'])
+    conv_all_parameters = build_readout_network_from_config(
+        model_config['conv_all_parameters'])
+    conv_all_parameters_trans = build_readout_network_from_config(
+        model_config['conv_all_parameters_trans'])
+
+    # new model definition
     model = DeepGaze_TEM(
         features=feature_extractor,
         saliency_network=saliency_network,
@@ -440,37 +451,39 @@ def build_model(model_config):
         scanpath_network=scanpath_network,
         fixation_selection_network=fixation_selection_network,
         fixation_selection_network_TEM=fixation_selection_network_TEM,
-        conv_all_parameters = conv_all_parameters,
+        conv_all_parameters=conv_all_parameters,
         conv_all_parameters_trans=conv_all_parameters_trans,
         downsample=model_config['downscale_factor'],
         readout_factor=model_config['readout_factor'],
         saliency_map_factor=model_config['saliency_map_factor'],
         included_fixations=model_config['included_previous_fixations'],
     )
-    
+
     for scope in model_config['fixated_scopes']:
         for parameter_name, parameter in model.named_parameters():
             if parameter_name.startswith(scope):
                 print("Fixating parameter", parameter_name)
                 parameter.requires_grad = False
-    
+
     print("Remaining training parameters")
     for parameter_name, parameter in model.named_parameters():
         if parameter.requires_grad:
             print(parameter_name)
-    
+
     return model
 
 
-baseline_performance = cached(LRU(max_size=3))(lambda model, *args, **kwargs: model.information_gain(*args, **kwargs))
+baseline_performance = cached(LRU(max_size=3))(
+    lambda model, *args, **kwargs: model.information_gain(*args, **kwargs))
 
-def eval_epoch(model, dataset, device, baseline_model, TEM_model, metrics=None, averaging_element='fixation',name='None'):
+
+def eval_epoch(model, dataset, device, baseline_model, TEM_model, metrics=None, averaging_element='fixation', name='None'):
     print("Averaging element", averaging_element)
     model.eval()
-    
+
     if metrics is None:
         metrics = ['LL', 'IG', 'NSS', 'AUC']
-    
+
     metric_scores = {}
     metric_scores_std = {}
     metric_functions = {
@@ -491,10 +504,10 @@ def eval_epoch(model, dataset, device, baseline_model, TEM_model, metrics=None, 
     batch_weights = []
     with torch.no_grad():
         pbar = tqdm(dataset)
-        n=0
-        mval=[]
-        sval=[]
-        file_names=[]
+        n = 0
+        mval = []
+        sval = []
+        file_names = []
         for batch in pbar:
             image = batch['image'].to(device)
             TEM = batch['TEM'].to(device)
@@ -506,77 +519,85 @@ def eval_epoch(model, dataset, device, baseline_model, TEM_model, metrics=None, 
             y_hist = batch.get('y_hist', torch.tensor([])).to(device)
             weights = batch['weight'].to(device)
             durations = batch.get('durations', torch.tensor([])).to(device)
-            log_density = model(image, TEM, centerbias, centerbias_TEM, x_hist=x_hist, y_hist=y_hist, durations=durations)
+            log_density = model(image, TEM, centerbias, centerbias_TEM,
+                                x_hist=x_hist, y_hist=y_hist, durations=durations)
             for metric_name, metric_fn in metric_functions.items():
                 if metric_name not in metrics:
                     continue
-                metric_scores.setdefault(metric_name, []).append(metric_fn(log_density, fixation_mask, weights=weights).detach().cpu().numpy())
+                metric_scores.setdefault(metric_name, []).append(
+                    metric_fn(log_density, fixation_mask, weights=weights).detach().cpu().numpy())
             for metric_name_std, metric_fn_std in metric_functions_std.items():
                 if metric_name_std not in metrics:
                     continue
-                metric_scores_std.setdefault(metric_name_std, []).append(metric_fn_std(log_density, fixation_mask, weights=weights).detach().cpu().numpy())
+                metric_scores_std.setdefault(metric_name_std, []).append(metric_fn_std(
+                    log_density, fixation_mask, weights=weights).detach().cpu().numpy())
             for metric_name_N, metric_fn_N in metric_functions_val.items():
                 if metric_name_N not in metrics:
                     continue
-                metric_scores_val.setdefault(metric_name_N, []).append(metric_fn_N(log_density, fixation_mask, weights=weights).detach().cpu().numpy())
+                metric_scores_val.setdefault(metric_name_N, []).append(metric_fn_N(
+                    log_density, fixation_mask, weights=weights).detach().cpu().numpy())
             batch_weights.append(weights.detach().cpu().numpy().sum())
-            
+
             for display_metric in ['LL', 'NSS', 'AUC']:
                 if display_metric in metrics:
-                    pbar.set_description('{} {:.05f}'.format(display_metric, np.average(metric_scores[display_metric], weights=batch_weights)))
+                    pbar.set_description('{} {:.05f}'.format(display_metric, np.average(
+                        metric_scores[display_metric], weights=batch_weights)))
                     break
-                    
-    flattened=[val for sublist in file_names for val in sublist]
-    for k in range(0,len(flattened)):
-         flattened[k]=flattened[k].split('/')[3]
+
+    flattened = [val for sublist in file_names for val in sublist]
+    for k in range(0, len(flattened)):
+        flattened[k] = flattened[k].split('/')[3]
     data = {metric_name: np.average(scores, weights=batch_weights) for metric_name, scores in metric_scores.items()}
-    data_s= {metric_name_std: np.average(scores_std, weights=batch_weights) for metric_name_std, scores_std in metric_scores_std.items()}
+    data_s = {metric_name_std: np.average(scores_std, weights=batch_weights) for metric_name_std, scores_std in metric_scores_std.items()}
     data_k = {metric_name_N: np.concatenate(scores_N).ravel() for metric_name_N, scores_N in metric_scores_val.items()}
-    
-    ## this is only to check how the training is evolving 
-    print(data,'val_mean')
-    print(data_s,'val_std')
+
+    # this is only to check how the training is evolving
+    print(data, 'val_mean')
+    print(data_s, 'val_std')
     if 'IG' in metrics:
-        baseline_ll = baseline_performance(baseline_model, dataset.dataset.stimuli, dataset.dataset.fixations, verbose=True, average=averaging_element)
+        baseline_ll = baseline_performance(
+            baseline_model, dataset.dataset.stimuli, dataset.dataset.fixations, verbose=True, average=averaging_element)
         data['IG'] = data['LL']-baseline_ll
         data_k['IG'] = data_k['LL'] - baseline_ll
-        
+
     with open('metrics_results_deep_TEM_scan_'+name+'.csv', 'w', newline='') as csvfile_n:
-         spamwriter_n = csv.writer(csvfile_n, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL)
-         data_p = list(zip(flattened,data_k['LL'].astype("|S10").tolist(),data_k['NSS'].astype("|S10").tolist(),data_k['AUC'].astype("|S10").$
+        spamwriter_n = csv.writer(csvfile_n, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+         data_p = list(zip(flattened, data_k['LL'].astype("|S10").tolist(), data_k['NSS'].astype("|S10").tolist(), data_k['AUC'].astype("|S10").$
          for row_n in data_p:
-             row_n = list(row_n)
-             spamwriter_n.writerow(row_n)    
- 
+             row_n=list(row_n)
+             spamwriter_n.writerow(row_n)
+
     return data
 
 def train_epoch(model, dataset, optimizer, device):
     model.train()
-    losses = []
-    batch_weights = []
-    
-    pbar = tqdm(dataset)
+    losses=[]
+    batch_weights=[]
+
+    pbar=tqdm(dataset)
     mval=[]
     sval=[]
     for batch in pbar:
         optimizer.zero_grad()
 
-        image = batch['image'].to(device)
-        TEM = batch['TEM'].to(device)
-        centerbias = batch['centerbias'].to(device)
-        centerbias_TEM = batch['centerbias_TEM'].to(device)
-        fixation_mask = batch['fixation_mask'].to(device)
-        x_hist = batch.get('x_hist', torch.tensor([])).to(device)
-        y_hist = batch.get('y_hist', torch.tensor([])).to(device)
-        weights = batch['weight'].to(device)
-        durations = batch.get('durations', torch.tensor([])).to(device)
+        image=batch['image'].to(device)
+        TEM=batch['TEM'].to(device)
+        centerbias=batch['centerbias'].to(device)
+        centerbias_TEM=batch['centerbias_TEM'].to(device)
+        fixation_mask=batch['fixation_mask'].to(device)
+        x_hist=batch.get('x_hist', torch.tensor([])).to(device)
+        y_hist=batch.get('y_hist', torch.tensor([])).to(device)
+        weights=batch['weight'].to(device)
+        durations=batch.get('durations', torch.tensor([])).to(device)
 
-        log_density = model(image, TEM, centerbias, centerbias_TEM,  x_hist=x_hist, y_hist=y_hist, durations=durations)
+        log_density=model(image, TEM, centerbias, centerbias_TEM,
+                          x_hist=x_hist, y_hist=y_hist, durations=durations)
 
-        loss = -log_likelihood(log_density, fixation_mask, weights=weights)
+        loss=-log_likelihood(log_density, fixation_mask, weights=weights)
         losses.append(loss.detach().cpu().numpy())
         batch_weights.append(weights.detach().cpu().numpy().sum())
-        pbar.set_description('{:.05f}'.format(np.average(losses, weights=batch_weights)))
+        pbar.set_description('{:.05f}'.format(
+            np.average(losses, weights=batch_weights)))
         loss.backward()
         optimizer.step()
         del image, centerbias, fixation_mask, x_hist, y_hist, weights, durations, log_density
@@ -586,7 +607,7 @@ def train_epoch(model, dataset, optimizer, device):
 
 def restore_from_checkpoint(model, optimizer, scheduler, path):
     print("Restoring from", path)
-    data = torch.load(path)
+    data=torch.load(path)
     if 'optimizer' in data:
         # checkpoint contains training progress
         model.load_state_dict(data['model'])
@@ -597,7 +618,7 @@ def restore_from_checkpoint(model, optimizer, scheduler, path):
         return data['step'], data['loss']
     else:
         # checkpoint contains just a model
-        missing_keys, unexpected_keys = model.load_state_dict(data, strict=False)
+        missing_keys, unexpected_keys=model.load_state_dict(data, strict=False)
         if missing_keys:
             print("WARNING! missing keys", missing_keys)
         if unexpected_keys:
@@ -605,7 +626,7 @@ def restore_from_checkpoint(model, optimizer, scheduler, path):
 
 
 def save_training_state(model, optimizer, scheduler, step, loss, path):
-    data = {
+    data={
         'model': model.state_dict(),
         'optimizer': optimizer.state_dict(),
         'scheduler': scheduler.state_dict(),
@@ -613,67 +634,71 @@ def save_training_state(model, optimizer, scheduler, step, loss, path):
         'step': step,
         'loss': loss,
     }
-    
+
     torch.save(data, path)
 
 
 def plot_scanpath(x_hist, y_hist, x, y, ax):
     for (x1, x2), (y1, y2) in zip(windowed(x_hist, 2), windowed(y_hist, 2)):
-        if x1==x2 and y1==y2:
+        if x1 == x2 and y1 == y2:
             continue
-        ax.arrow(x1, y1, x2-x1, y2-y1, length_includes_head=True, head_length=20, head_width=20, color='red', zorder=10, linewidth=2)
+        ax.arrow(x1, y1, x2-x1, y2-y1, length_includes_head=True,
+                 head_length=20, head_width=20, color='red', zorder=10, linewidth=2)
 
-    x1 = x_hist[-1]
-    y1 = y_hist[-1]
-    x2 = x
-    y2 = y
-    ax.arrow(x1, y1, x2-x1, y2-y1, length_includes_head=True, head_length=20, head_width=20, color='blue', linestyle=':', linewidth=2, zorder=10)
+    x1=x_hist[-1]
+    y1=y_hist[-1]
+    x2=x
+    y2=y
+    ax.arrow(x1, y1, x2-x1, y2-y1, length_includes_head=True, head_length=20,
+             head_width=20, color='blue', linestyle=':', linewidth=2, zorder=10)
 
 
 def visualize(model, vis_data_loader):
     model.eval()
-    
-    device = next(model.parameters()).device
-    print('dev',device)      
-    batch = next(iter(vis_data_loader))
 
-    image = batch['image'].to(device)
-    TEM = batch['TEM'].to(device)
-    centerbias = batch['centerbias'].to(device)
-    centerbias_TEM = batch['centerbias_TEM'].to(device)
-    fixation_mask = batch['fixation_mask'].to(device)
-    x_hist = batch.get('x_hist', torch.tensor([])).to(device)
-    y_hist = batch.get('y_hist', torch.tensor([])).to(device)
-    durations = batch.get('durations', torch.tensor([])).to(device)
-    log_density = model(image, TEM, centerbias, centerbias_TEM, x_hist=x_hist, y_hist=y_hist, durations=durations)
+    device=next(model.parameters()).device
+    print('dev', device)
+    batch=next(iter(vis_data_loader))
 
-    log_density = log_density.detach().cpu().numpy()
-    fixation_indices = fixation_mask.coalesce().indices().detach().cpu().numpy()
-    rgb_image = image.detach().cpu().numpy().transpose(0, 2, 3, 1).astype(np.uint8)
-    x_hist = x_hist.detach().cpu().numpy()
-    y_hist = y_hist.detach().cpu().numpy()
-    
-    width = 4.0
-    height = width / rgb_image.shape[2] * rgb_image.shape[1]
-    f, axs = plt.subplots(len(rgb_image), 2, figsize=(2*width, height*len(rgb_image)))
-    
+    image=batch['image'].to(device)
+    TEM=batch['TEM'].to(device)
+    centerbias=batch['centerbias'].to(device)
+    centerbias_TEM=batch['centerbias_TEM'].to(device)
+    fixation_mask=batch['fixation_mask'].to(device)
+    x_hist=batch.get('x_hist', torch.tensor([])).to(device)
+    y_hist=batch.get('y_hist', torch.tensor([])).to(device)
+    durations=batch.get('durations', torch.tensor([])).to(device)
+    log_density=model(image, TEM, centerbias, centerbias_TEM,
+                      x_hist=x_hist, y_hist=y_hist, durations=durations)
+
+    log_density=log_density.detach().cpu().numpy()
+    fixation_indices=fixation_mask.coalesce().indices().detach().cpu().numpy()
+    rgb_image=image.detach().cpu().numpy().transpose(0, 2, 3, 1).astype(np.uint8)
+    x_hist=x_hist.detach().cpu().numpy()
+    y_hist=y_hist.detach().cpu().numpy()
+
+    width=4.0
+    height=width / rgb_image.shape[2] * rgb_image.shape[1]
+    f, axs=plt.subplots(len(rgb_image), 2, figsize=(
+        2*width, height*len(rgb_image)))
+
     for row in range(len(rgb_image)):
         axs[row, 0].imshow(rgb_image[row])
 
-        bs, ys, xs = fixation_indices
+        bs, ys, xs=fixation_indices
 
-        ys = ys[bs == row]
-        xs = xs[bs == row]
+        ys=ys[bs == row]
+        xs=xs[bs == row]
 
         if len(x_hist):
-            _x_hist = x_hist[row]
+            _x_hist=x_hist[row]
         else:
-            _x_hist = []
+            _x_hist=[]
 
         if len(y_hist):
-            _y_hist = y_hist[row]
+            _y_hist=y_hist[row]
         else:
-            _y_hist = []
+            _y_hist=[]
 
         visualize_distribution(log_density[row], ax=axs[row, 1])
 
@@ -687,8 +712,9 @@ def visualize(model, vis_data_loader):
         axs[row, 0].set_axis_off()
         axs[row, 1].set_axis_off()
 
-        plt.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0.01, hspace=0.01)
-    
+        plt.subplots_adjust(left=0, right=1, top=1,
+                            bottom=0, wspace=0.01, hspace=0.01)
+
     return f
 
 def train(this_directory,
@@ -698,7 +724,7 @@ def train(this_directory,
           TEM_train_stimuli, TEM_train_fixations, TEM_train_baseline,
           TEM_val_stimuli, TEM_val_fixations, TEM_val_baseline,
           optimizer_config, lr_scheduler_config, minimum_learning_rate,
-          #initial_learning_rate, learning_rate_scheduler, learning_rate_decay, learning_rate_decay_epochs, learning_rate_backlook, learning_rate_reset_strategy, minimum_learning_rate,
+          # initial_learning_rate, learning_rate_scheduler, learning_rate_decay, learning_rate_decay_epochs, learning_rate_backlook, learning_rate_reset_strategy, minimum_learning_rate,
           batch_size=2,
           ratio_used=0.25,
           validation_metric='IG',
@@ -707,119 +733,131 @@ def train(this_directory,
           averaging_element='image',
           startwith=None):
     mkdir_p(this_directory)
-    
+
     print("TRAINING DATASET", len(train_fixations.x))
     print("VALIDATION DATASET", len(val_fixations.x))
-    
+
     if os.path.isfile(os.path.join(this_directory, 'final--300-TEM_stepyy_nn.pth')):
         print("Training Already finished")
         return
-    
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
+
+    device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     print("Using device", device)
-    
+
     model.to(device)
-    
+
     print("optimizer", optimizer_config)
     print("lr_scheduler", lr_scheduler_config)
-    
-    optimizer_class = import_class(optimizer_config['type'])
-    optimizer = optimizer_class(model.parameters(), **optimizer_config['params'])
-    
-    scheduler_class = import_class(lr_scheduler_config['type'])
-    scheduler = scheduler_class(
+
+    optimizer_class=import_class(optimizer_config['type'])
+    optimizer=optimizer_class(model.parameters(), **optimizer_config['params'])
+
+    scheduler_class=import_class(lr_scheduler_config['type'])
+    scheduler=scheduler_class(
         optimizer,
         **lr_scheduler_config['params']
     )
-    
+
     if iteration_element == 'image':
-        dataset_class = ImageDataset_TEM
+        dataset_class=ImageDataset_TEM
     elif iteration_element == 'fixation':
-        dataset_class = lambda *args, **kwargs: FixationDataset(*args, **kwargs, included_fixations=model.included_fixations)
-    
-    train_dataset = dataset_class(train_stimuli,TEM_train_stimuli, train_fixations, train_baseline, TEM_train_baseline, transform=FixationMaskTransform(), average=averaging_element)
-    val_dataset = dataset_class(val_stimuli,TEM_val_stimuli ,val_fixations, val_baseline, TEM_val_baseline, transform=FixationMaskTransform(), average=averaging_element)
-   
-    train_loader = torch.utils.data.DataLoader(
+        dataset_class=lambda *args, **kwargs: FixationDataset(
+            *args, **kwargs, included_fixations=model.included_fixations)
+
+    train_dataset=dataset_class(train_stimuli, TEM_train_stimuli, train_fixations, train_baseline,
+                                TEM_train_baseline, transform=FixationMaskTransform(), average=averaging_element)
+    val_dataset=dataset_class(val_stimuli, TEM_val_stimuli, val_fixations, val_baseline,
+                              TEM_val_baseline, transform=FixationMaskTransform(), average=averaging_element)
+
+    train_loader=torch.utils.data.DataLoader(
         train_dataset,
-        batch_sampler=ImageDatasetSampler(train_dataset, batch_size=batch_size, ratio_used=ratio_used),
+        batch_sampler=ImageDatasetSampler(
+            train_dataset, batch_size=batch_size, ratio_used=ratio_used),
         pin_memory=False,
         num_workers=0,  # doesn't work for sparse tensors yet. Might work soon.
     )
-    
-    val_loader = torch.utils.data.DataLoader(
+
+    val_loader=torch.utils.data.DataLoader(
         val_dataset,
         batch_sampler=ImageDatasetSampler(val_dataset, batch_size=batch_size),
         pin_memory=False,
         num_workers=0,
     )
-    
+
     if iteration_element == 'image':
-        vis_stimuli, vis_fixations, vis_TEM = create_subset_TEM(val_stimuli, TEM_train_stimuli, val_fixations, list(range(batch_size)))
+        vis_stimuli, vis_fixations, vis_TEM=create_subset_TEM(
+            val_stimuli, TEM_train_stimuli, val_fixations, list(range(batch_size)))
     if iteration_element == 'fixation':
-        vis_stimuli, vis_fixations = create_subset(val_stimuli, val_fixations, [0])
-        vis_fixations = vis_fixations[:batch_size]
-    vis_dataset = dataset_class(vis_stimuli, vis_TEM, vis_fixations, val_baseline, TEM_val_baseline, transform=FixationMaskTransform(), average=averaging_element)
-    vis_data_loader = torch.utils.data.DataLoader(
+        vis_stimuli, vis_fixations=create_subset(
+            val_stimuli, val_fixations, [0])
+        vis_fixations=vis_fixations[:batch_size]
+    vis_dataset=dataset_class(vis_stimuli, vis_TEM, vis_fixations, val_baseline,
+                              TEM_val_baseline, transform=FixationMaskTransform(), average=averaging_element)
+    vis_data_loader=torch.utils.data.DataLoader(
         vis_dataset,
-        batch_sampler=ImageDatasetSampler(vis_dataset, batch_size=batch_size, shuffle=False),
+        batch_sampler=ImageDatasetSampler(
+            vis_dataset, batch_size=batch_size, shuffle=False),
         pin_memory=False,
     )
-    
-    val_metrics = defaultdict(lambda: [])
-    
+
+    val_metrics=defaultdict(lambda: [])
+
     if startwith is not None:
         restore_from_checkpoint(model, optimizer, scheduler, startwith)
-    
-    columns = ['epoch', 'timestamp', 'learning_rate', 'loss']
+
+    columns=['epoch', 'timestamp', 'learning_rate', 'loss']
     for metric in validation_metrics:
         columns.append(f'validation_{metric}')
-    
-    progress = pd.DataFrame(columns=columns)
-    
-    step = 0
-    last_loss = np.nan
-    
+
+    progress=pd.DataFrame(columns=columns)
+
+    step=0
+    last_loss=np.nan
+
     def save_step():
 
         save_training_state(
             model, optimizer, scheduler, step, last_loss,
-            '{}/stepyy-300-plus_qqnTEM_nn_{:03d}.pth'.format(this_directory, step),
+            '{}/stepyy-300-plus_qqnTEM_nn_{:03d}.pth'.format(
+                this_directory, step),
         )
-        
-        #f = visualize(model, vis_data_loader)
-        #if is_notebook:
+
+        # f = visualize(model, vis_data_loader)
+        # if is_notebook:
         #    display(f)
-        
-        with open(os.path.join(this_directory, 'log_opt-TEM_train')+'.csv','a') as fd:
-              fd.write('prediction:'+str(step)+',training/loss:'+str(last_loss)+',training/learning_rate:'+str(optimizer.state_dict()['param_groups'][0]['lr'])+',parameters/sigma:'+str(model.finalizer.gauss.sigma.detach().cpu().numpy())+',parameters/center_bias_weight:'+str(model.finalizer.center_bias_weight.detach().cpu().numpy()[0]))
-        
-        _val_metrics = eval_epoch(model, val_loader, device, val_baseline, TEM_val_baseline, metrics=validation_metrics, averaging_element=averaging_element)
+
+        with open(os.path.join(this_directory, 'log_opt-TEM_train')+'.csv', 'a') as fd:
+              fd.write('prediction:'+str(step)+',training/loss:'+str(last_loss)+',training/learning_rate:'+str(optimizer.state_dict()['param_groups'][0]['lr'])+',parameters/sigma:'+str(
+                  model.finalizer.gauss.sigma.detach().cpu().numpy())+',parameters/center_bias_weight:'+str(model.finalizer.center_bias_weight.detach().cpu().numpy()[0]))
+
+        _val_metrics=eval_epoch(model, val_loader, device, val_baseline, TEM_val_baseline,
+                                metrics=validation_metrics, averaging_element=averaging_element)
         for key, value in _val_metrics.items():
             val_metrics[key].append(value)
 
-        with open(os.path.join(this_directory, 'log_opt-plus_qqntest_uu_')+'.csv','a') as fd:       
-        	for key, value in _val_metrics.items():
-            		fd.write('validation/'+str(key)+':'+','+str(value)+','+str(step))
-        
-        new_row = {
+        with open(os.path.join(this_directory, 'log_opt-plus_qqntest_uu_')+'.csv', 'a') as fd:
+             for key, value in _val_metrics.items():
+                 fd.write('validation/'+str(key)+':'+','+str(value)+','+str(step))
+
+        new_row={
             'epoch': step,
             'timestamp': datetime.utcnow(),
             'learning_rate': optimizer.state_dict()['param_groups'][0]['lr'],
             'loss': last_loss,
-            #'validation_ig': val_igs[-1]
+            # 'validation_ig': val_igs[-1]
         }
         for key, value in _val_metrics.items():
-            new_row[f'validation/{key}'] = value
-        
-        progress.loc[step] = new_row
+            new_row[f'validation/{key}']=value
+
+        progress.loc[step]=new_row
 
         print(progress.tail(n=2))
-        print(progress[['validation_{}'.format(key) for key in val_metrics]].idxmax(axis=0))
+        print(progress[['validation_{}'.format(key)
+              for key in val_metrics]].idxmax(axis=0))
 
         progress.to_csv('{}/log_opt-TEM.csv'.format(this_directory))
-        
+
         for old_step in range(1, step):
             # only check if we are computing validation metrics...
             if val_metrics[validation_metric] and old_step == np.argmax(val_metrics[validation_metric]):
@@ -829,11 +867,13 @@ def train(this_directory,
                 os.remove(filename)
 
 
-    old_checkpoints = sorted(glob.glob(os.path.join(this_directory, 'step-plus_TEM_*.pth')))
+    old_checkpoints=sorted(glob.glob(os.path.join(
+        this_directory, 'step-plus_TEM_*.pth')))
     if old_checkpoints:
-        last_checkpoint = old_checkpoints[-1]
+        last_checkpoint=old_checkpoints[-1]
         print("Found old checkpoint", last_checkpoint)
-        step, last_loss = restore_from_checkpoint(model, optimizer, scheduler, last_checkpoint)
+        step, last_loss=restore_from_checkpoint(
+            model, optimizer, scheduler, last_checkpoint)
         print("Setting step to", step)
 
     if step == 0:
@@ -842,11 +882,13 @@ def train(this_directory,
 
     else:
         print("Continuing from step", step)
-        progress = pd.read_csv(os.path.join(this_directory, 'log_opt-TEM.csv'), index_col=0)
-        val_metrics = {}
+        progress=pd.read_csv(os.path.join(
+            this_directory, 'log_opt-TEM.csv'), index_col=0)
+        val_metrics={}
         for column_name in progress.columns:
             if column_name.startswith('validation_'):
-                val_metrics[column_name.split('validation_', 1)[1]] = list(progress[column_name])
+                val_metrics[column_name.split('validation_', 1)[1]]=list(
+                    progress[column_name])
 
         if step not in progress.epoch.values:
             print("Epoch not yet evaluated, evaluating...")
@@ -856,13 +898,13 @@ def train(this_directory,
 
     while optimizer.state_dict()['param_groups'][0]['lr'] >= minimum_learning_rate:
         step += 1
-        last_loss = train_epoch(model, train_loader, optimizer, device)
-        #gpu_profile(frame=sys._getframe(), event='line', arg=None)
+        last_loss=train_epoch(model, train_loader, optimizer, device)
+        # gpu_profile(frame=sys._getframe(), event='line', arg=None)
         save_step()
         scheduler.step()
-    
+
     torch.save(model.state_dict(), '{}/final--TEM.pth'.format(this_directory))
-    
+
     for filename in glob.glob(os.path.join(this_directory, 'step-plus_TEM_*')):
         print("removing", filename)
         os.remove(filename)
@@ -872,7 +914,7 @@ def _get_from_config(key, *configs, **kwargs):
     """get config keys with fallbacks"""
     for config in configs:
         try:
-            print(glom(config,key,**kwargs))
+            print(glom(config, key, **kwargs))
             return glom(config, key, **kwargs)
         except KeyError:
             pass
@@ -882,14 +924,15 @@ assert _get_from_config('a.b', {'a': {'c': 1}}, {'a': {'b': 2}}) == 2
 
 
 def _get_stimulus_filename(stimuli_stimulus):
-    stimuli = stimuli_stimulus.stimuli
-    index = stimuli_stimulus.index
+    stimuli=stimuli_stimulus.stimuli
+    index=stimuli_stimulus.index
     if isinstance(stimuli, pysaliency.FileStimuli):
         return stimuli.filenames[index]
     elif isinstance(stimuli, pysaliency.datasets.ObjectStimuli):
         return _get_stimulus_filename(stimuli.stimulus_objects[index])
     else:
-        raise TypeError("Stimuli of type {} don't have filenames!".format(type(stimuli)))
+        raise TypeError(
+            "Stimuli of type {} don't have filenames!".format(type(stimuli)))
 
 def get_filenames_for_stimuli(stimuli):
     if isinstance(stimuli, pysaliency.datasets.FileStimuli):
@@ -902,60 +945,73 @@ def make_file_stimuli(stimuli):
 
 def _get_dataset(dataset_config, training_config=None, string_indicator=None):
     """return stimuli, fixations, centerbias"""
-    centerbias = None
-    #print(isinstance(dataset_config, str),'wii')
-    #print(dataset_config)
+    centerbias=None
+    # print(isinstance(dataset_config, str),'wii')
+    # print(dataset_config)
     if isinstance(dataset_config, str):
         print(string_indicator)
-        dataset_config = { 'name':  dataset_config, 'stimuli':training_config['train_dataset'],'stimuli_TEM_val':training_config['TEM_dataset_val'],'stimuli_TEM':training_config['TEM_dataset'], 'train_dataset': training_config['train_dataset'], 'fixations_val':training_config['val_fixations'] , 'fixations': training_config['fixations'],
+        dataset_config={'name':  dataset_config, 'stimuli': training_config['train_dataset'], 'stimuli_TEM_val': training_config['TEM_dataset_val'], 'stimuli_TEM': training_config['TEM_dataset'], 'train_dataset': training_config['train_dataset'], 'fixations_val': training_config['val_fixations'], 'fixations': training_config['fixations'],
                           'filters': []}
-    #print(dataset_config['stimuli']) 
+    # print(dataset_config['stimuli'])
     if string_indicator == 'train':
-        stimuli = pysaliency.external_datasets.read_hdf5(dataset_config['stimuli'])
-        stimuli_TEM=pysaliency.external_datasets.read_hdf5(dataset_config['stimuli_TEM'])
-        fixations = pysaliency.external_datasets.read_hdf5(dataset_config['fixations'])
-        fixations_TEM = pysaliency.external_datasets.read_hdf5(dataset_config['fixations'])
-    
+        stimuli=pysaliency.external_datasets.read_hdf5(
+            dataset_config['stimuli'])
+        stimuli_TEM=pysaliency.external_datasets.read_hdf5(
+            dataset_config['stimuli_TEM'])
+        fixations=pysaliency.external_datasets.read_hdf5(
+            dataset_config['fixations'])
+        fixations_TEM=pysaliency.external_datasets.read_hdf5(
+            dataset_config['fixations'])
+
     if string_indicator == 'val':
         dataset_config['stimuli']=dataset_config['name']
         dataset_config['fixations']=root_directory+'/fixations_val_train.hdf5'
-        
-        stimuli = pysaliency.external_datasets.read_hdf5(dataset_config['stimuli'])
-        fixations = pysaliency.external_datasets.read_hdf5(dataset_config['fixations'])
-        stimuli_TEM=pysaliency.external_datasets.read_hdf5(dataset_config['stimuli_TEM_val'])
-        fixations_TEM = pysaliency.external_datasets.read_hdf5(dataset_config['fixations'])
-    
+
+        stimuli=pysaliency.external_datasets.read_hdf5(
+            dataset_config['stimuli'])
+        fixations=pysaliency.external_datasets.read_hdf5(
+            dataset_config['fixations'])
+        stimuli_TEM=pysaliency.external_datasets.read_hdf5(
+            dataset_config['stimuli_TEM_val'])
+        fixations_TEM=pysaliency.external_datasets.read_hdf5(
+            dataset_config['fixations'])
+
     if string_indicator == 'test':
         dataset_config['stimuli']=dataset_config['name']
-        dataset_config['fixations']=root_directory+'/fixations_train_train.hdf5'
-        
-        stimuli = pysaliency.external_datasets.read_hdf5(dataset_config['stimuli'])
-        fixations = pysaliency.external_datasets.read_hdf5(dataset_config['fixations'])
-        stimuli_TEM=pysaliency.external_datasets.read_hdf5(dataset_config['stimuli_TEM_val'])
-        fixations_TEM = pysaliency.external_datasets.read_hdf5(dataset_config['fixations'])    
-    
+        dataset_config['fixations']=root_directory + \
+            '/fixations_train_train.hdf5'
+
+        stimuli=pysaliency.external_datasets.read_hdf5(
+            dataset_config['stimuli'])
+        fixations=pysaliency.external_datasets.read_hdf5(
+            dataset_config['fixations'])
+        stimuli_TEM=pysaliency.external_datasets.read_hdf5(
+            dataset_config['stimuli_TEM_val'])
+        fixations_TEM=pysaliency.external_datasets.read_hdf5(
+            dataset_config['fixations'])
+
 
     if string_indicator == 'train':
-    	pysaliency_config = dict(dataset_config)
-    	centerbias_file = pysaliency_config.pop('centerbias', None)
-    	stimuli, fixations = load_dataset_from_config(pysaliency_config)
-     
-    ## define the centerbias and stimuli files depending the information you want to use for training, calculate them offline
+        pysaliency_config=dict(dataset_config)
+        centerbias_file=pysaliency_config.pop('centerbias', None)
+        stimuli, fixations=load_dataset_from_config(pysaliency_config)
+
+    # define the centerbias and stimuli files depending the information you want to use for training, calculate them offline
 
     if string_indicator == 'train':
-        centerbias_path = root_directory+'/centerbias_train.hdf5'
-        centerbias_TEM_path = root_directory+'/centerbias_train_TEM_pca.hdf5'
-        #_get_from_config('centerbias', dataset_config, training_config)
+        centerbias_path=root_directory+'/centerbias_train.hdf5'
+        centerbias_TEM_path=root_directory+'/centerbias_train_TEM_pca.hdf5'
+        # _get_from_config('centerbias', dataset_config, training_config)
     if string_indicator == 'val':
-        #centerbias_path = '/gpfs/scratch/jmayortorres/deepgaze_pytorch-master/centerbias_optimized_cross.hdf5'
-        centerbias_path = root_directory+'/centerbias_val.hdf5'
-        centerbias_TEM_path = root_directory+'/centerbias_val_TEM_pca.hdf5'
+        # centerbias_path = '/gpfs/scratch/jmayortorres/deepgaze_pytorch-master/centerbias_optimized_cross.hdf5'
+        centerbias_path=root_directory+'/centerbias_val.hdf5'
+        centerbias_TEM_path=root_directory+'/centerbias_val_TEM_pca.hdf5'
     if string_indicator == 'test':
-        centerbias_path = root_directory+'/centerbias_val.hdf5'     
-        centerbias_TEM_path = root_directory+'/centerbias_val_TEM_dist_n.hdf5'
+        centerbias_path=root_directory+'/centerbias_val.hdf5'
+        centerbias_TEM_path=root_directory+'/centerbias_val_TEM_dist_n.hdf5'
 
-    centerbias = HDF5Model(stimuli, centerbias_path)
-    centerbias_TEM = HDF5Model(stimuli_TEM, centerbias_TEM_path)
+    centerbias=HDF5Model(stimuli, centerbias_path)
+    centerbias_TEM=HDF5Model(stimuli_TEM, centerbias_TEM_path)
 
     return stimuli, fixations, centerbias, stimuli_TEM, fixations_TEM, centerbias_TEM
 
@@ -966,7 +1022,7 @@ def iterate_crossvalidation_config(stimuli, fixations, crossval_config):
                 val_folds=crossval_config['val_folds'],
                 test_folds=crossval_config['test_folds']
             )):
-        
+
         yield crossval_config["folds"], fold_no, train_stimuli, train_fixations, val_stimuli, val_fixations, test_stimuli, test_fixations
 
 
@@ -974,29 +1030,35 @@ def run_training_part(training_config, full_config, final_cleanup=False):
     print("Running training part", training_config['name'])
     print("Configuration of this training part:")
     print(yaml.safe_dump(training_config))
-    
+
     if 'val_dataset' in training_config and 'crossvalidation' in training_config:
-        raise ValueError("Cannot specify both validation dataset and crossvalidation")
-    
-    directory = os.path.join(root_directory, training_config['name'])
+        raise ValueError(
+            "Cannot specify both validation dataset and crossvalidation")
+
+    directory=os.path.join(root_directory, training_config['name'])
 
     training_config['train_dataset']=root_directory+'/stimuli_train.hdf5'
     training_config['TEM_dataset']=root_directory+'/stimuli_train_TEM_pca.hdf5'
-    training_config['TEM_dataset_val']=root_directory+'/stimuli_val_TEM_pca.hdf5'
+    training_config['TEM_dataset_val']=root_directory + \
+        '/stimuli_val_TEM_pca.hdf5'
     training_config['fixations']=root_directory+'/fixations_train_train.hdf5'
     training_config['val_dataset']=root_directory+'/stimuli_val.hdf5'
     training_config['test_dataset']=root_directory+'/stimuli_val.hdf5'
     training_config['val_fixations']=root_directory+'/fixations_val_train.hdf5'
-    training_config['test_fixations']=root_directory+'/fixations_val_train.hdf5'
-    train_stimuli, train_fixations, train_centerbias, TEM_train_stimuli, TEM_train_fixations, TEM_train_centerbias = _get_dataset(training_config['train_dataset'],training_config,'train')
+    training_config['test_fixations']=root_directory + \
+        '/fixations_val_train.hdf5'
+    train_stimuli, train_fixations, train_centerbias, TEM_train_stimuli, TEM_train_fixations, TEM_train_centerbias=_get_dataset(
+        training_config['train_dataset'], training_config, 'train')
 
     if 'val_dataset' in training_config:
-        val_stimuli, val_fixations, val_centerbias, TEM_val_stimuli, TEM_val_fixations, TEM_val_centerbias = _get_dataset(training_config['val_dataset'], training_config,'val')
+        val_stimuli, val_fixations, val_centerbias, TEM_val_stimuli, TEM_val_fixations, TEM_val_centerbias=_get_dataset(
+            training_config['val_dataset'], training_config, 'val')
         if 'test_dataset' in training_config:
-            test_stimuli, test_fixations, test_centerbias, TEM_test_stimuli, TEM_test_fixations, TEM_test_centerbias = _get_dataset(training_config['test_dataset'], training_config,'test')
+            test_stimuli, test_fixations, test_centerbias, TEM_test_stimuli, TEM_test_fixations, TEM_test_centerbias=_get_dataset(
+                training_config['test_dataset'], training_config, 'test')
         else:
-            test_stimuli = test_fixations = test_centerbias = TEM_test_stimuli = TEM_test_fixations = TEM_test_centerbias = None
-        
+            test_stimuli=test_fixations=test_centerbias=TEM_test_stimuli=TEM_test_fixations=TEM_test_centerbias=None
+
         def iter_fn():
             return [{
                 'config': training_config,
@@ -1022,7 +1084,7 @@ def run_training_part(training_config, full_config, final_cleanup=False):
                 'test_fixations_TEM': TEM_test_fixations,
                 'test_centerbias_TEM': TEM_test_centerbias,
             }]
-        
+
     else:
         assert 'crossvalidation' in training_config
         def iter_fn():
@@ -1042,23 +1104,23 @@ def run_training_part(training_config, full_config, final_cleanup=False):
                     'test_fixations': _test_fixations,
                     'test_centerbias': train_centerbias,
                 }
-    
+
     for part in iter_fn():
-        
+
         if args.crossval_fold_number is not None and part['fold_no'] != args.crossval_fold_number:
             print("Skipping crossval fold number", part['fold_no'])
             continue
-        
-        model = build_model(training_config['model'])
-        
-        startwith = part['config']['startwith']
+
+        model=build_model(training_config['model'])
+
+        startwith=part['config']['startwith']
         if startwith is not None:
-            startwith = startwith.format(
+            startwith=startwith.format(
                 root_directory=root_directory,
                 crossval_folds=part['crossval_folds'],
                 fold_no=part['fold_no']
             )
-                
+
         train(
             this_directory=os.getcwd(),
             model=model,
@@ -1068,11 +1130,11 @@ def run_training_part(training_config, full_config, final_cleanup=False):
             val_stimuli=part['val_stimuli'],
             val_fixations=part['val_fixations'],
             val_baseline=part['val_centerbias'],
-            TEM_train_stimuli=part['train_stimuli_TEM'], 
-            TEM_train_fixations=part['train_fixations_TEM'], 
+            TEM_train_stimuli=part['train_stimuli_TEM'],
+            TEM_train_fixations=part['train_fixations_TEM'],
             TEM_train_baseline=part['train_centerbias_TEM'],
-            TEM_val_stimuli=part['val_stimuli_TEM'], 
-            TEM_val_fixations=part['val_fixations_TEM'], 
+            TEM_val_stimuli=part['val_stimuli_TEM'],
+            TEM_val_fixations=part['val_fixations_TEM'],
             TEM_val_baseline=part['val_centerbias_TEM'],
             optimizer_config=part['config']['optimizer'],
             lr_scheduler_config=part['config']['lr_scheduler'],
@@ -1085,24 +1147,26 @@ def run_training_part(training_config, full_config, final_cleanup=False):
             validation_metrics=part['config']['validation_metrics'],
             validation_metric=part['config']['validation_metric'],
         )
-    
+
     if final_cleanup:
         run_cleanup(iter_fn, directory, training_config['final_cleanup'])
         return
-    
+
     if training_config['evaluation']:
         run_evaluation(iter_fn, directory, training_config)
-    
+
     if training_config['cleanup']:
         run_cleanup(iter_fn, directory, training_config['cleanup'])
 
 
 def run_evaluation(iter_fn, directory, training_config):
-    evaluation_config = training_config['evaluation']
+    evaluation_config=training_config['evaluation']
     if evaluation_config['compute_metrics']:
-        compute_metrics(iter_fn, directory, evaluation_config['compute_metrics'], training_config)
+        compute_metrics(iter_fn, directory,
+                        evaluation_config['compute_metrics'], training_config)
     if evaluation_config['compute_predictions']:
-        compute_predictions(iter_fn, directory, evaluation_config['compute_predictions'], training_config)
+        compute_predictions(
+            iter_fn, directory, evaluation_config['compute_predictions'], training_config)
 
 def _get_dataset_for_part(part, dataset):
     if dataset == 'training':
@@ -1112,90 +1176,105 @@ def _get_dataset_for_part(part, dataset):
     if dataset == 'test':
         return part['test_stimuli'], part['test_fixations'], part['test_centerbias']
     raise ValueError(dataset)
-        
+
 def compute_metrics(iter_fn, directory, evaluation_config, training_config):
-    metrics = []
-    weights = {dataset: [] for dataset in evaluation_config['datasets']}
-    
-    results_file = os.path.join('../results_TEM.csv')
+    metrics=[]
+    weights={dataset: [] for dataset in evaluation_config['datasets']}
+
+    results_file=os.path.join('../results_TEM.csv')
     if not os.path.isfile(results_file):
         for part in iter_fn():
-            this_directory = os.getcwd()
+            this_directory=os.getcwd()
 
             if os.path.isfile(os.path.join('../results_TEM.csv')):
-                results = pd.read_csv(os.path.join(this_directory, '../results_TEM.csv'), index_col=0)
-                
+                results=pd.read_csv(os.path.join(
+                    this_directory, '../results_TEM.csv'), index_col=0)
+
                 metrics.append(results)
-                
+
                 for dataset in evaluation_config['datasets']:
                     if dataset == 'validation':
-                    	_stimuli, _fixations, _ = _get_dataset(training_config['val_dataset'], training_config,'val') #_get_dataset_for_part(part, dataset)
+                        # _get_dataset_for_part(part, dataset)
+                        _stimuli, _fixations, _=_get_dataset(training_config['val_dataset'], training_config, 'val')
                     if dataset == 'test':
-                        _stimuli, _fixations, _ = _get_dataset(training_config['test_dataset'], training_config,'test') #_get_dataset_for_part(part, dataset)
+                        # _get_dataset_for_part(part, dataset)
+                        _stimuli, _fixations, _=_get_dataset(training_config['test_dataset'], training_config, 'test')
                     weights[dataset].append(len(_fixations.x))
 
                 continue
 
-            
-            model = build_model(training_config['model'])
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+            model=build_model(training_config['model'])
+            device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
             print("Using device", device)
             model.to(device)
-            
-            restore_from_checkpoint(model, None, None, os.path.join(os.getcwd(),'final--300-TEM.pth'))
-    
-        
-            this_results = {metric: {} for metric in evaluation_config['metrics']}
-            
+
+            restore_from_checkpoint(model, None, None, os.path.join(
+                os.getcwd(), 'final--300-TEM.pth'))
+
+
+            this_results={metric: {}
+                for metric in evaluation_config['metrics']}
+
             for dataset in evaluation_config['datasets']:
 
                 if dataset == 'training':
-                        _stimuli, _fixations, _centerbias, _stim_TEM, _stim_TEM_fixations, _stim_TEM_centerbias = _get_dataset(training_config['train_dataset'], training_config,'train') #_get_dataset_for_part(part, dataset)
+                        _stimuli, _fixations, _centerbias, _stim_TEM, _stim_TEM_fixations, _stim_TEM_centerbias=_get_dataset(
+                            training_config['train_dataset'], training_config, 'train')  # _get_dataset_for_part(part, dataset)
                 if dataset == 'validation':
-                        _stimuli, _fixations, _centerbias, _stim_TEM, _stim_TEM_fixations, _stim_TEM_centerbias = _get_dataset(training_config['val_dataset'], training_config,'val') #_get_dataset_for_part(part, dataset)
+                        _stimuli, _fixations, _centerbias, _stim_TEM, _stim_TEM_fixations, _stim_TEM_centerbias=_get_dataset(
+                            training_config['val_dataset'], training_config, 'val')  # _get_dataset_for_part(part, dataset)
                 if dataset == 'test':
-                        _stimuli, _fixations, _centerbias, _stim_TEM, _stim_TEM_fixations, _stim_TEM_centerbias = _get_dataset(training_config['test_dataset'], training_config,'test') #_get_dataset_for_part(part, dataset)
-                
-                
+                        _stimuli, _fixations, _centerbias, _stim_TEM, _stim_TEM_fixations, _stim_TEM_centerbias=_get_dataset(
+                            training_config['test_dataset'], training_config, 'test')  # _get_dataset_for_part(part, dataset)
+
+
                 if part['config']['iteration_element'] == 'image':
-                    dataset_class = ImageDataset_TEM
+                    dataset_class=ImageDataset_TEM
                 elif part['config']['iteration_element'] == 'fixation':
-                    dataset_class = lambda *args, **kwargs: FixationDataset(*args, **kwargs, included_fixations=model.included_fixations)
+                    dataset_class=lambda *args, **kwargs: FixationDataset(
+                        *args, **kwargs, included_fixations=model.included_fixations)
                 else:
                     raise ValueError(part['config']['iteration_element'])
 
-                _dataset = dataset_class(_stimuli, _stim_TEM, _fixations, _centerbias, _stim_TEM_centerbias, transform=FixationMaskTransform(), average=part['config']['averaging_element'])
-                loader = torch.utils.data.DataLoader(
+                _dataset=dataset_class(_stimuli, _stim_TEM, _fixations, _centerbias, _stim_TEM_centerbias,
+                                       transform=FixationMaskTransform(), average=part['config']['averaging_element'])
+                loader=torch.utils.data.DataLoader(
                     _dataset,
-                    batch_sampler=ImageDatasetSampler(_dataset, batch_size=part['config']['batch_size'], shuffle=False),
+                    batch_sampler=ImageDatasetSampler(
+                        _dataset, batch_size=part['config']['batch_size'], shuffle=False),
                     pin_memory=False,
-                    num_workers=0,  # doesn't work for sparse tensors yet. Might work soon.
+                    # doesn't work for sparse tensors yet. Might work soon.
+                    num_workers=0,
                 )
-                
-                _results = eval_epoch(model, loader, device, _centerbias, _stim_TEM_centerbias, metrics=evaluation_config['metrics'], averaging_element=part['config']['averaging_element'],name=dataset)
-                
+
+                _results=eval_epoch(model, loader, device, _centerbias, _stim_TEM_centerbias,
+                                    metrics=evaluation_config['metrics'], averaging_element=part['config']['averaging_element'], name=dataset)
+
                 for metric in evaluation_config['metrics']:
-                    this_results[metric][dataset] = _results[metric]
-                
+                    this_results[metric][dataset]=_results[metric]
+
                 if part['config']['averaging_element'] == 'fixation':
                     weights[dataset].append(len(_fixations.x))
                 elif part['config']['averaging_element'] == 'image':
                     weights[dataset].append(len(_stimuli))
-            
-            result_df = pd.DataFrame(this_results, columns=evaluation_config['metrics']).loc[evaluation_config['datasets']]
+
+            result_df=pd.DataFrame(
+                this_results, columns=evaluation_config['metrics']).loc[evaluation_config['datasets']]
             result_df.to_csv(os.path.join(this_directory, 'results_TEM.csv'))
-            
+
             metrics.append(result_df)
 
-        rows = []
+        rows=[]
         for dataset in evaluation_config['datasets']:
-            _weights = weights[dataset]
-            relative_weights = np.array(_weights) / np.array(_weights).sum()
-            _results = [df.loc[dataset] for df in metrics]
-            _result = sum(weight*df for weight, df in zip(relative_weights, _results))
+            _weights=weights[dataset]
+            relative_weights=np.array(_weights) / np.array(_weights).sum()
+            _results=[df.loc[dataset] for df in metrics]
+            _result=sum(weight*df for weight,
+                        df in zip(relative_weights, _results))
             rows.append(_result)
-        
-        result_df = pd.DataFrame(rows)
+
+        result_df=pd.DataFrame(rows)
 
         result_df.to_csv(results_file)
 
@@ -1203,93 +1282,105 @@ def compute_metrics(iter_fn, directory, evaluation_config, training_config):
     else:
         print(pd.read_csv(results_file, index_col=0))
 
-        
+
 class SharedPyTorchModel(object):
     def __init__(self, model):
-        self.model = model
-        self.active_checkpoint = None
+        self.model=model
+        self.active_checkpoint=None
 
     def load_checkpoint(self, checkpoint_path):
         if self.active_checkpoint != checkpoint_path:
             self.model.load_state_dict(torch.load(checkpoint_path))
-            self.active_checkpoint = checkpoint_path
+            self.active_checkpoint=checkpoint_path
 
 
 class DeepGazeCheckpointModel(models.Model):
     def __init__(self, shared_model, checkpoint, centerbias_model, TEM_model, centerbias_TEM):
         super().__init__(caching=False)
 
-        self.checkpoint = checkpoint
-        self.centerbias_model = centerbias_model
-        self.centerbias_model_TEM = TEM_model
-        self.shared_model = shared_model
-        self.stim_TEM = TEM_model
-        self.centerbias_TEM = centerbias_TEM
+        self.checkpoint=checkpoint
+        self.centerbias_model=centerbias_model
+        self.centerbias_model_TEM=TEM_model
+        self.shared_model=shared_model
+        self.stim_TEM=TEM_model
+        self.centerbias_TEM=centerbias_TEM
 
-    def _log_density(self, stimulus,stim_TEM):
+    def _log_density(self, stimulus, stim_TEM):
         self.shared_model.load_checkpoint(self.checkpoint)
-        images = torch.tensor([stimulus.transpose(2, 0, 1)], dtype=torch.float64)
-        stim_TEM = torch.tensor([self.stim_TEM.transpose(2, 0, 1)], dtype=torch.float64)
-        centerbiases = torch.tensor([self.centerbias_model.log_density(stimulus)], dtype=torch.float64)
-        centerbiases_TEM = torch.tensor([self.centerbias_TEM.log_density(stimulus)], dtype=torch.float64)
-        log_density = self.shared_model.model.forward(images.type('torch.FloatTensor'),stim_TEM.type('torch.FloatTensor'), centerbiases.type('torch.FloatTensor'),centerbiases_TEM.type('torch.FloatTensor'))[0, :, :].detach().cpu().numpy()
-        
-        return log_density
-
-    def _log_density_n(self, stimulus,stim_TEM):
-        self.shared_model.load_checkpoint(self.checkpoint)
-        images = torch.tensor([stimulus.transpose(2, 0, 1)], dtype=torch.float64)
-        stim_TEM_n = torch.tensor([stim_TEM.transpose(2, 0, 1)], dtype=torch.float64)
-        centerbiases = torch.tensor([self.centerbias_model.log_density(stimulus)], dtype=torch.float64)
-        centerbiases_TEM = torch.tensor([self.centerbias_TEM.log_density(stim_TEM)], dtype=torch.float64)
-        log_density = self.shared_model.model.forward(images.type('torch.FloatTensor'),stim_TEM_n.type('torch.FloatTensor'), centerbiases.type('torch.FloatTensor'),centerbiases_TEM.type('torch.FloatTensor'))[0, :, :].detach().cpu().numpy()
+        images=torch.tensor([stimulus.transpose(2, 0, 1)], dtype=torch.float64)
+        stim_TEM=torch.tensor(
+            [self.stim_TEM.transpose(2, 0, 1)], dtype=torch.float64)
+        centerbiases=torch.tensor(
+            [self.centerbias_model.log_density(stimulus)], dtype=torch.float64)
+        centerbiases_TEM=torch.tensor(
+            [self.centerbias_TEM.log_density(stimulus)], dtype=torch.float64)
+        log_density=self.shared_model.model.forward(images.type('torch.FloatTensor'), stim_TEM.type('torch.FloatTensor'), centerbiases.type(
+            'torch.FloatTensor'), centerbiases_TEM.type('torch.FloatTensor'))[0, :, :].detach().cpu().numpy()
 
         return log_density
 
-        
+    def _log_density_n(self, stimulus, stim_TEM):
+        self.shared_model.load_checkpoint(self.checkpoint)
+        images=torch.tensor([stimulus.transpose(2, 0, 1)], dtype=torch.float64)
+        stim_TEM_n=torch.tensor(
+            [stim_TEM.transpose(2, 0, 1)], dtype=torch.float64)
+        centerbiases=torch.tensor(
+            [self.centerbias_model.log_density(stimulus)], dtype=torch.float64)
+        centerbiases_TEM=torch.tensor(
+            [self.centerbias_TEM.log_density(stim_TEM)], dtype=torch.float64)
+        log_density=self.shared_model.model.forward(images.type('torch.FloatTensor'), stim_TEM_n.type('torch.FloatTensor'), centerbiases.type(
+            'torch.FloatTensor'), centerbiases_TEM.type('torch.FloatTensor'))[0, :, :].detach().cpu().numpy()
+
+        return log_density
+
+
 def compute_predictions(iter_fn, directory, prediction_config, training_config):
-    
-    model = build_model(training_config['model'])
-    shared_model = SharedPyTorchModel(model)
-    bashCommand1 = "cp vgg.py vgg_temp.py"
-    bashCommand2 = "cp vgg_pred.py vgg.py"
-    process1 = subprocess.Popen(bashCommand1.split(), stdout=subprocess.PIPE)
-    output1, error1 = process1.communicate()
-    process2 = subprocess.Popen(bashCommand2.split(), stdout=subprocess.PIPE)
-    output2, error2 = process2.communicate()
-    
+
+    model=build_model(training_config['model'])
+    shared_model=SharedPyTorchModel(model)
+    bashCommand1="cp vgg.py vgg_temp.py"
+    bashCommand2="cp vgg_pred.py vgg.py"
+    process1=subprocess.Popen(bashCommand1.split(), stdout=subprocess.PIPE)
+    output1, error1=process1.communicate()
+    process2=subprocess.Popen(bashCommand2.split(), stdout=subprocess.PIPE)
+    output2, error2=process2.communicate()
+
     for dataset in prediction_config['datasets']:
         print(f"Computing predictions for dataset {dataset}")
-        models = {}
-        dataset_stimuli = []
-        dataset_fixations = []
-        data_TEM = []
+        models={}
+        dataset_stimuli=[]
+        dataset_fixations=[]
+        data_TEM=[]
         for part in iter_fn():
-            this_directory = part['directory']
-            checkpoint = os.path.join(this_directory, 'final--300-TEM.pth')
+            this_directory=part['directory']
+            checkpoint=os.path.join(this_directory, 'final--300-TEM.pth')
             if dataset == 'training':
-                _stimuli, _fixations, _centerbias, _stimuli_TEM, _fixations_TEM, _centerbias_TEM = _get_dataset(training_config['train_dataset'], training_config,'train')
+                _stimuli, _fixations, _centerbias, _stimuli_TEM, _fixations_TEM, _centerbias_TEM=_get_dataset(training_config['train_dataset'], training_config, 'train')
             if dataset == 'validation':
-            	_stimuli, _fixations, _centerbias, _stimuli_TEM, _fixations_TEM, _centerbias_TEM = _get_dataset(training_config['val_dataset'], training_config,'train')
+                _stimuli, _fixations, _centerbias, _stimuli_TEM, _fixations_TEM, _centerbias_TEM=_get_dataset(training_config['val_dataset'], training_config, 'train')
             if dataset == 'test':
-                _stimuli, _fixations, _centerbias, _stimuli_TEM, _fixations_TEM, _centerbias_TEM = _get_dataset(training_config['val_dataset'], training_config,'val')
-            models[_stimuli] = DeepGazeCheckpointModel(shared_model, checkpoint, _centerbias, _stimuli_TEM,_centerbias_TEM)
+                _stimuli, _fixations, _centerbias, _stimuli_TEM, _fixations_TEM, _centerbias_TEM=_get_dataset(training_config['val_dataset'], training_config, 'val')
+            models[_stimuli]=DeepGazeCheckpointModel(
+                shared_model, checkpoint, _centerbias, _stimuli_TEM, _centerbias_TEM)
             dataset_stimuli.append(_stimuli)
             dataset_fixations.append(_fixations)
             data_TEM.append(_stimuli_TEM)
 
-        model = pysaliency.models.StimulusDependentModel(models)
-        stimuli, fixations_stim = pysaliency.datasets.concatenate_datasets(dataset_stimuli, dataset_fixations)
-        TEM, fixations_TEM = pysaliency.datasets.concatenate_datasets(data_TEM, dataset_fixations)
-        file_stimuli = make_file_stimuli(stimuli)
-        file_TEM = make_file_stimuli(TEM)
-        pysaliency.precomputed_models.export_model_to_hdf5_n(model,file_stimuli,file_TEM,fixations_stim,os.path.join(os.getcwd(),f'{dataset}_predictions_SALICON.hdf5'))
+        model=pysaliency.models.StimulusDependentModel(models)
+        stimuli, fixations_stim=pysaliency.datasets.concatenate_datasets(
+            dataset_stimuli, dataset_fixations)
+        TEM, fixations_TEM=pysaliency.datasets.concatenate_datasets(
+            data_TEM, dataset_fixations)
+        file_stimuli=make_file_stimuli(stimuli)
+        file_TEM=make_file_stimuli(TEM)
+        pysaliency.precomputed_models.export_model_to_hdf5_n(
+            model, file_stimuli, file_TEM, fixations_stim, os.path.join(os.getcwd(), f'{dataset}_predictions_SALICON.hdf5'))
 
-        
+
 def run_cleanup(iter_fn, directory, cleanup_config):
     if cleanup_config['cleanup_checkpoints']:
         for part in iter_fn():
-            this_directory = part['directory']
+            this_directory=part['directory']
             for filename in glob.glob(os.path.join(this_directory, '*.ckpt.*')):
                 print("removing", filename)
                 os.remove(filename)
@@ -1309,4 +1400,3 @@ for training_part in config['training']['parts']:
         print("Skipping part", args.training_part)
         continue
     run_training_part(training_part, config)
-
