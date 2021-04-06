@@ -9,6 +9,7 @@ import torch
 from tqdm import tqdm
 from torch.utils.data import Dataset
 
+
 def ensure_color_image(image):
     if len(image.shape) == 2:
         return np.dstack([image, image, image])
@@ -55,9 +56,11 @@ class ImageDataset(Dataset):
                 self._ys_cache.setdefault(n, []).append(y)
 
             for key in list(self._xs_cache):
-                self._xs_cache[key] = np.array(self._xs_cache[key], dtype=np.long)
+                self._xs_cache[key] = np.array(
+                    self._xs_cache[key], dtype=np.long)
             for key in list(self._ys_cache):
-                self._ys_cache[key] = np.array(self._ys_cache[key], dtype=np.long)
+                self._ys_cache[key] = np.array(
+                    self._ys_cache[key], dtype=np.long)
 
     def get_shapes(self):
         return list(self.stimuli.sizes)
@@ -65,7 +68,7 @@ class ImageDataset(Dataset):
     def __getitem__(self, key):
         if not self.cached or key not in self._cache:
             image = np.array(self.stimuli.stimuli[key])
-            #print(self.stimuli.stimuli,self.stimuli,'val_stimuli')
+            # print(self.stimuli.stimuli,self.stimuli,'val_stimuli')
             file_name = self.stimuli.filenames[key]
             centerbias_prediction = self.centerbias_model.log_density(image)
 
@@ -82,7 +85,7 @@ class ImageDataset(Dataset):
 
             data = {
                 "image": image,
-                "file_name":file_name,
+                "file_name": file_name,
                 "x": xs,
                 "y": ys,
                 "centerbias": centerbias_prediction,
@@ -102,32 +105,34 @@ class ImageDataset(Dataset):
             return self.transform(dict(data))
 
         return data
+
     def __len__(self):
         return len(self.stimuli)
 
 
 class ImageDataset_TEM(Dataset):
     def __init__(self, stimuli, TEM, fixations, centerbias_model=None, centerbias_TEM=None, transform=None, cached=True, included_fixations=[0], average='fixation'):
-        
+
         self.stimuli = stimuli
         self.fixations = fixations
         self.centerbias_model = centerbias_model
         self.transform = transform
-        self.TEM=TEM
+        self.TEM = TEM
         self.centerbias_TEM = centerbias_TEM
         self.average = average
 
         self.cached = cached
-         
+
         if isinstance(included_fixations, int):
             if included_fixations < 0:
-                included_fixations = [-1 - i for i in range(-included_fixations)]
+                included_fixations = [-1 -
+                                      i for i in range(-included_fixations)]
             else:
                 raise NotImplementedError()
 
         self.included_fixations = included_fixations
-        self.fixation_counts = Counter(fixations.n) 
-        
+        self.fixation_counts = Counter(fixations.n)
+
         if cached:
             self._cache = {}
             print("Populating fixations cache")
@@ -139,12 +144,14 @@ class ImageDataset_TEM(Dataset):
                 self._ys_cache.setdefault(n, []).append(y)
 
             for key in list(self._xs_cache):
-                self._xs_cache[key] = np.array(self._xs_cache[key], dtype=np.long)
+                self._xs_cache[key] = np.array(
+                    self._xs_cache[key], dtype=np.long)
             for key in list(self._ys_cache):
-                self._ys_cache[key] = np.array(self._ys_cache[key], dtype=np.long)
+                self._ys_cache[key] = np.array(
+                    self._ys_cache[key], dtype=np.long)
 
     def get_shapes(self):
-           return list(self.stimuli.sizes)
+        return list(self.stimuli.sizes)
 
     def __getitem__(self, key):
         if not self.cached or key not in self._cache:
@@ -152,21 +159,22 @@ class ImageDataset_TEM(Dataset):
             TEM_image = np.array(self.TEM.stimuli[key])
             centerbias_prediction = self.centerbias_model.log_density(image)
             file_name = self.stimuli.filenames[key]
-            
+
             x_hist = self.fixations.x_hist
-            y_hist= self.fixations.y_hist
-            
-            if not(self.centerbias_TEM == None):
-               centerbias_TEM_prediction = self.centerbias_TEM.log_density(TEM_image)
+            y_hist = self.fixations.y_hist
+
+            if self.centerbias_TEM is None:
+                centerbias_TEM_prediction = self.centerbias_TEM.log_density(
+                    TEM_image)
             else:
-               centerbias_TEM_prediction=None
-           
+                centerbias_TEM_prediction = None
+
             image = ensure_color_image(image).astype(np.float16)
             image = image.transpose(2, 0, 1)
             TEM_image = ensure_color_image(TEM_image).astype(np.float32)
             TEM_image = TEM_image.transpose(2, 0, 1)
             inds = self.fixations.n == key
-            #print(inds,'inds')
+            # print(inds,'inds')
 
             if self.cached:
                 xs = self._xs_cache.pop(key)
@@ -175,23 +183,24 @@ class ImageDataset_TEM(Dataset):
                 inds = self.fixations.n == key
                 xs = np.array(self.fixations.x_int[inds], dtype=np.long)
                 ys = np.array(self.fixations.y_int[inds], dtype=np.long)
-            
-            x_hist=x_hist[inds]
-            y_hist=y_hist[inds]
-           
-            new_inds=np.random.randint(0,160,100) ## change this depending on how you process the fixations file
+
+            x_hist = x_hist[inds]
+            y_hist = y_hist[inds]
+
+            # change this depending on how you process the fixations file
+            new_inds = np.random.randint(0, 160, 100)
 
             data = {
                 "image": image,
-                "key":key, 
+                "key": key,
                 "TEM": TEM_image,
                 "x": xs,
                 "y": ys,
-                "file_name":file_name,
+                "file_name": file_name,
                 "x_hist": x_hist[new_inds],
                 "y_hist": y_hist[new_inds],
                 "centerbias": centerbias_prediction,
-                "centerbias_TEM":centerbias_TEM_prediction,
+                "centerbias_TEM": centerbias_TEM_prediction,
             }
 
             if self.average == 'image':
@@ -211,7 +220,6 @@ class ImageDataset_TEM(Dataset):
 
     def __len__(self):
         return len(self.stimuli)
-
 
 
 class FixationDataset(torch.utils.data.Dataset):
@@ -226,7 +234,8 @@ class FixationDataset(torch.utils.data.Dataset):
 
         if isinstance(included_fixations, int):
             if included_fixations < 0:
-                included_fixations = [-1 - i for i in range(-included_fixations)]
+                included_fixations = [-1 -
+                                      i for i in range(-included_fixations)]
             else:
                 raise NotImplementedError()
 
@@ -236,7 +245,7 @@ class FixationDataset(torch.utils.data.Dataset):
     def get_shapes(self):
         if self._shapes is None:
             shapes = list(self.stimuli.sizes)
-            print(len(shapes),self.fixations.n)
+            print(len(shapes), self.fixations.n)
             self._shapes = [shapes[n] for n in self.fixations.n]
 
         return self._shapes
@@ -248,12 +257,12 @@ class FixationDataset(torch.utils.data.Dataset):
 
         image = ensure_color_image(image).astype(np.float32)
         image = image.transpose(2, 0, 1)
-        
+
         x_hist = remove_trailing_nans(self.fixations.x_hist[key])
         y_hist = remove_trailing_nans(self.fixations.y_hist[key])
-        
+
         x_hist = self.fixations.x_hist[key]
-        y_hist= self.fixations.y_hist[key]
+        y_hist = self.fixations.y_hist[key]
         data = {
             "image": image,
             "x": np.array([self.fixations.x_int[key]], dtype=np.long),
@@ -285,9 +294,12 @@ class FixationMaskTransform(object):
 
         inds = np.array([y, x])
         values = np.ones(len(y), dtype=np.int)
-        inds[0,np.where(inds[0,:]>=shape[0])]=inds[0,np.where(inds[0,:]>=shape[0])]-1
-        inds[1,np.where(inds[1,:]>=np.max([shape[0],shape[1]]))]=inds[1,np.where(inds[1,:]>=np.max([shape[0],shape[1]]))]-1 
-        mask = torch.sparse.IntTensor(torch.tensor(inds), torch.tensor(values), shape)
+        inds[0, np.where(inds[0, :] >= shape[0])] = inds[0,
+                                                         np.where(inds[0, :] >= shape[0])]-1
+        inds[1, np.where(inds[1, :] >= np.max([shape[0], shape[1]]))] = inds[1, np.where(
+            inds[1, :] >= np.max([shape[0], shape[1]]))]-1
+        mask = torch.sparse.IntTensor(
+            torch.tensor(inds), torch.tensor(values), shape)
         mask = mask.coalesce()
 
         item['fixation_mask'] = mask
@@ -321,7 +333,8 @@ class ImageDatasetSampler(torch.utils.data.Sampler):
             for indices in shape_indices:
                 random.shuffle(indices)
 
-        self.batches = sum([chunked(indices, size=batch_size) for indices in shape_indices], [])
+        self.batches = sum([chunked(indices, size=batch_size)
+                            for indices in shape_indices], [])
 
     def __iter__(self):
         if self.shuffle:
@@ -348,7 +361,8 @@ def create_train_folds(crossval_folds, val_folds, test_folds):
     if isinstance(test_folds, int):
         test_folds = [test_folds]
 
-    train_folds = [f for f in all_folds if not (f in val_folds or f in test_folds)]
+    train_folds = [f for f in all_folds if not (
+        f in val_folds or f in test_folds)]
 
     return train_folds, val_folds, test_folds
 
@@ -357,7 +371,8 @@ def get_crossval_folds(crossval_folds, crossval_no, test_folds=1, val_folds=1):
     assert test_folds <= 1
     if test_folds:
         _test_folds = [crossval_no]
-        _val_folds = [(crossval_no - i - 1) % crossval_folds for i in range(val_folds)]
+        _val_folds = [(crossval_no - i - 1) %
+                      crossval_folds for i in range(val_folds)]
 
     else:
         assert val_folds == 1
@@ -365,7 +380,8 @@ def get_crossval_folds(crossval_folds, crossval_no, test_folds=1, val_folds=1):
         _test_folds = [crossval_no]
         _val_folds = [crossval_no]
 
-    _train_folds, _val_folds, _test_folds = create_train_folds(crossval_folds, _val_folds, _test_folds)
+    _train_folds, _val_folds, _test_folds = create_train_folds(
+        crossval_folds, _val_folds, _test_folds)
 
     return _train_folds, _val_folds, _test_folds
 
