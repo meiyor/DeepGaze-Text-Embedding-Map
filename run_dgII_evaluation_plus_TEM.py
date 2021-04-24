@@ -194,7 +194,6 @@ model_spec = schema.Schema({
     'saliency_network': readout_network_spec,
     'saliency_network_TEM': readout_network_spec,
     'fixation_selection_network': readout_network_spec,
-    'fixation_selection_network_TEM': readout_network_spec,
     'conv_all_parameters': readout_network_spec,
     'conv_all_parameters_trans': readout_network_spec,
 })
@@ -436,8 +435,6 @@ def build_model(model_config):
         scanpath_network = None
     fixation_selection_network = build_readout_network_from_config(
         model_config['fixation_selection_network'])
-    fixation_selection_network_TEM = build_readout_network_from_config(
-        model_config['fixation_selection_network_TEM'])
     conv_all_parameters = build_readout_network_from_config(
         model_config['conv_all_parameters'])
     conv_all_parameters_trans = build_readout_network_from_config(
@@ -450,7 +447,7 @@ def build_model(model_config):
         saliency_network_TEM=saliency_network_TEM,
         scanpath_network=scanpath_network,
         fixation_selection_network=fixation_selection_network,
-        fixation_selection_network_TEM=fixation_selection_network_TEM,
+        fixation_selection_network_TEM=None,
         conv_all_parameters=conv_all_parameters,
         conv_all_parameters_trans=conv_all_parameters_trans,
         downsample=model_config['downscale_factor'],
