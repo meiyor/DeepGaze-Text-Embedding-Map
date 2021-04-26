@@ -184,11 +184,11 @@ class ImageDataset_TEM(Dataset):
                 xs = np.array(self.fixations.x_int[inds], dtype=np.long)
                 ys = np.array(self.fixations.y_int[inds], dtype=np.long)
 
-            x_hist = x_hist[inds]
-            y_hist = y_hist[inds]
+            #x_hist = x_hist[inds]
+            #y_hist = y_hist[inds]
 
             # change this depending on how you process the fixations file
-            new_inds = np.random.randint(0, 160, 100)
+            #new_inds = np.random.randint(0, 160, 100)
 
             data = {
                 "image": image,
@@ -197,8 +197,8 @@ class ImageDataset_TEM(Dataset):
                 "x": xs,
                 "y": ys,
                 "file_name": file_name,
-                "x_hist": x_hist[new_inds],
-                "y_hist": y_hist[new_inds],
+                "x_hist": x_hist[key],
+                "y_hist": y_hist[key],
                 "centerbias": centerbias_prediction,
                 "centerbias_TEM": centerbias_TEM_prediction,
             }
