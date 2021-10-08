@@ -17,5 +17,5 @@ with pysaliency.utils.TemporaryDirectory(cleanup=True) as temp_dir:
             filenames = [os.path.basename(f) for f in sorted(glob.glob(os.path.join(temp_dir, 'TEM_val_pca_TEM_100/', 'COCO_val*')))],
             location=os.path.join(location, 'datasets/stim_val_TEM0') if location else None
        )
-   stimuli_train.to_hdf5(os.path.join(location, 'stimuli_train_TEM_pca_100.hdf5'))
-   stimuli_val.to_hdf5(os.path.join(location, 'stimuli_val_TEM_pca_100.hdf5'))
+   stimuli_train.to_hdf5(os.path.join(location, 'stimuli_train_TEM.hdf5'))
+   stimuli_val.to_hdf5(os.path.join(location, 'stimuli_val_TEM.hdf5'))
