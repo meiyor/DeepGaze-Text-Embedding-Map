@@ -46,7 +46,7 @@ python generate_TEM/generate_TEM_train_dist.py
 python generate_TEM/generate_TEM_val_dist.py
 ```
 
-Now you must create the **centerbias** files for the stimuli and the TEM images. For doing that be sure the stimuli_train.hdf5, fixations_train.hdf5, stimuli_val.hdf5, fixations_val.hdf5, stimuli_TEM_train.hdf5, and stimuli_TEM_val.hdf5 files are located in the **experiment_root/** folder. Then, you can run: 
+Now you must create the **centerbias** files for the stimuli and the TEM images. For doing that be sure the stimuli_train.hdf5, fixations_train.hdf5, stimuli_val.hdf5, fixations_val.hdf5, stimuli_TEM_train.hdf5, and stimuli_TEM_val.hdf5 files are located in the **experiment_root/** folder. If you want to create your own sitmuli and fixations hdf5 files feel free to modify the **create_stimuli.py** and **create_fixations.py** files. Then, you can run: 
 ```python
 python create_centerbias.py
 python create_centerbias_TEM.py
