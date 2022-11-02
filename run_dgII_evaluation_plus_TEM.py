@@ -292,8 +292,8 @@ config_schema = schema.Schema({
 
 
 # setting_up the confing file
-root_directory = 'experiments_root/'  # define the root directory a-priori
-config = yaml.load(open('config_dg2_TEM.yaml'))
+root_directory = 'experiments_root/'  # define the root directory a-priori to set everything before the training 
+config = yaml.load(open('config_dg2_TEM.yaml')) ##check the configuration file before running the training and test this will let you know where the resulting files will be saved, the checkpoints and the interim performance files.
 
 config = config_schema.validate(config)
 print(yaml.safe_dump(config))
@@ -975,8 +975,7 @@ def _get_dataset(dataset_config, training_config=None, string_indicator=None):
 
     if string_indicator == 'test':
         dataset_config['stimuli']=dataset_config['name']
-        dataset_config['fixations']=root_directory + \
-            '/fixations_train_train.hdf5'
+        dataset_config['fixations']=root_directory + '/fixations_train_train.hdf5'
 
         stimuli=pysaliency.external_datasets.read_hdf5(
             dataset_config['stimuli'])
@@ -1033,17 +1032,16 @@ def run_training_part(training_config, full_config, final_cleanup=False):
             "Cannot specify both validation dataset and crossvalidation")
 
     directory=os.path.join(root_directory, training_config['name'])
-
+    
+    ## create all the .hdf5 with the create stimuli, fixations and centerbias files .py
     training_config['train_dataset']=root_directory+'/stimuli_train.hdf5'
     training_config['TEM_dataset']=root_directory+'/stimuli_train_TEM_pca.hdf5'
-    training_config['TEM_dataset_val']=root_directory + \
-        '/stimuli_val_TEM_pca.hdf5'
+    training_config['TEM_dataset_val']=root_directory + '/stimuli_val_TEM_pca.hdf5'
     training_config['fixations']=root_directory+'/fixations_train_train.hdf5'
     training_config['val_dataset']=root_directory+'/stimuli_val.hdf5'
     training_config['test_dataset']=root_directory+'/stimuli_val.hdf5'
     training_config['val_fixations']=root_directory+'/fixations_val_train.hdf5'
-    training_config['test_fixations']=root_directory + \
-        '/fixations_val_train.hdf5'
+    training_config['test_fixations']=root_directory + '/fixations_val_train.hdf5'
     train_stimuli, train_fixations, train_centerbias, TEM_train_stimuli, TEM_train_fixations, TEM_train_centerbias=_get_dataset(
         training_config['train_dataset'], training_config, 'train')
 
