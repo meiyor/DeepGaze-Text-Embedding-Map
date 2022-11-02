@@ -51,17 +51,17 @@ Now you must create the **centerbias** files for the stimuli and the TEM images.
 python create_centerbias.py
 python create_centerbias_TEM.py
 ```
-Now, you are ready to the training! and you can run this:
+Now, you are ready to do the training! and you can run this. Check the configuration file .yaml, in this case the ****:
 ```python
 python run_dgII_evaluation_plus_TEM.py
 ```
-log.txt files will present you the current status of the learning, or if you want to wait until the end of the training  the file **results_TEM.csv** will show you the final Log-likehood (LL), Information Gain (IG), Area Under Curve (AUC), and Normalized Scanpath Saliency (NSS).
+After you run the training and the test, or after **run_dgII_evaluation_plus_TEM.py** is done executing, a log.txt files will present you the current status of the learning, or if you want to wait until the end of the training  the file **results_TEM.csv** will show you the final Log-likehood (LL), Information Gain (IG), Area Under Curve (AUC), and Normalized Scanpath Saliency (NSS).  
 
-A LL evolution through the training epochs could be observed in the following Figure including TEM features. An [AdaBound](https://github.com/Luolc/AdaBound) optimizer and a final Drop-out layer (before the Finalizer) must be added to the network for avoiding overfitting. The full pipeline of out semantic-based gaze prediction is shown in the following Figure:
+A LL evolution through the training epochs could be observed in the following Figure including TEM features. This is the full pipeline of our new approach **DeepGaze+TEM**. An [AdaBound](https://github.com/Luolc/AdaBound) optimizer and a final Drop-out layer (before the Finalizer) must be added to the network for avoiding overfitting. The full pipeline of out semantic-based gaze prediction is shown in the following Figure:
 
 <img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/pipeline_def_new_no_scan.jpg" width="1100" height="300">
 
-The performance comparison between the [DeepGaze (DG)](https://github.com/matthias-k/deepgaze_pytorch) baseline and the DeepGaze+TEM is the following:
+The performance comparison between the [DeepGaze (DG)](https://github.com/matthias-k/deepgaze_pytorch) baseline and outr DeepGaze+TEM approach is the following. Use the code on **matlab_metrics** directory to compute the based on the resulting .csv file after training and testing using **run_dgII_evaluation_plus_TEM.py**:
 
 |   | **IG** | **LL** | **AUC** | **NSS** | 
 | ------------- | ------------- |  ------------- | ------------- |  ------------- |
