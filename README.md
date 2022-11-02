@@ -17,7 +17,7 @@ Subsequently, download the image data from the following links:
 
 For the fixation data use the hdf5 files included in the **experiments_root/** folder
 
-and the COCO panoptic segmentations from here and unzip them **use the train and val panoptic sets released on 2017**:
+and the COCO panoptic segmentations from here and unzip them - **use the train and val panoptic sets released on 2017**:
 
 [COCO download**](https://cocodataset.org/#download)
 
