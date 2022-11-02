@@ -579,9 +579,9 @@ def order_by_index(seq, index, iter=False):
         [2, 0, 1]
         >>> # Sort both lists by the sort order of a
         >>> order_by_index(a, index)
-        ['num2', 'num3', 'num5']
+        ['num2', 'num3', 'num5' , 'num6']
         >>> order_by_index(b, index)
-        ['baz', 'foo', 'bar']
+        ['baz', 'foo', 'bar' ,'barbar']
 
     """
     return (seq[i] for i in index) if iter else [seq[i] for i in index]
