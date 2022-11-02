@@ -143,8 +143,8 @@ class LRI(dict):
         return flattened_list
 
     def _get_link_and_move_to_front_of_ll(self, key):
-        # find what will become the newest link. this may raise a
-        # KeyError, which is useful to __getitem__ and __setitem__
+        ## find what will become the newest link. this may raise a
+        ## KeyError, which is useful to __getitem__ and __setitem__
         newest = self._link_lookup[key]
 
         # splice out what will become the newest link.
