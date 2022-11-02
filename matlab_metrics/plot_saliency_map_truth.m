@@ -1,6 +1,8 @@
 function plot_saliency_map_truth(path,name,vals)
 close all;
+%% fixation dataset with all the val values
 preffix='/home/jmm_vivobook_asus/DeepGaze_project/COCO/COCO_subfolder_output/fixations/val/';
+%% images subfolder selected when you desire and in your local computer. These are local directions of my previous val folder but you can locate them as you prefer
 preffix_img='/home/jmm_vivobook_asus/DeepGaze_project/COCO/COCO_subfolder_output/val/';
 val_suf=strsplit(path,'.');
 IMor=imread([preffix_img val_suf{1} '.jpg']);
