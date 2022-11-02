@@ -55,7 +55,7 @@ class Rand:
 		return self.process( input, _dec_process )
 		
 		
-	######
+	#######
 	def calcRoiSize( self, input ):
 		return input.shape
 
@@ -68,7 +68,7 @@ class RandBlock(Rand):
 		super(RandBlock, self).__init__(key)
 		self.blockSize = blockSize
 
-	######
+	#######
 	def calcRoiSize( self, input ):
 		inputshape = input.shape
 		
