@@ -79,7 +79,7 @@ All the metrics show a significant improvement for all the paired test as we sho
 | **signtest***  | 5.56E-12 | 5.56E-12 | 1.33E-9 | 1.41E-5 | 
 | **signrank***  | 3.03E-14 | 3.03E-14 | 2.94E-9 | 7.88E-8 | 
 
-A great example of the metrics example using the TEM as features is shown on the next figure. This example describes the saliency map pattern using a jet colormap, and showing the fixations groundtruth, the panoptic annotation image, and the results for the DG baseline and our proposed DG+TEM showing better results for the DG+TEM approach.
+A great example of the metrics example using the TEM as features is shown on the next figure. This example describes the saliency map pattern using a jet colormap, thus showing the fixations groundtruth, the panoptic annotation image, and the results for the DG baseline and our proposed DG+TEM showing better results for the DG+TEM approach. The panoptic groundtruth image can be obtained from the COCO dataset or the panoptic/semantic scene segmentation networks proposed by the remarkable paper of [Zhou et., al 2020](https://openaccess.thecvf.com/content_cvpr_2017/html/Zhou_Scene_Parsing_Through_CVPR_2017_paper.html) 
 
 
 <img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/example_saliency_pattern.jpg" width="850" height="500">
