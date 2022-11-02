@@ -69,7 +69,7 @@ The performance comparison between the [DeepGaze (DG)](https://github.com/matthi
 | **DeepGaze + TEM**  | **0.5662±0.5816** | **1.2556±0.5816** | 0.8333±0.0563 | **1.5445±0.7661** | 
 
 A statistical comparison have been using paired tests, evaluating the normality of each metrics and finding the following effect plot - correcting p-values.
-All the metrics show a significant improvement for all the paired test as we shown in the following table. The methods on * are less affected by the sample normality, for instance the signrank tests.
+All metrics show a significant improvement for all the paired test as we shown in the following table. The methods on * are less affected by the sample normality, for instance the signrank tests.
 
 <img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/plot_effect_IG.jpg" width="750" height="350">
 
@@ -79,7 +79,7 @@ All the metrics show a significant improvement for all the paired test as we sho
 | **signtest***  | 5.56E-12 | 5.56E-12 | 1.33E-9 | 1.41E-5 | 
 | **signrank***  | 3.03E-14 | 3.03E-14 | 2.94E-9 | 7.88E-8 | 
 
-A great example of the metrics example using the TEM as features is shown on the next figure. This example describes the saliency map pattern using a jet colormap, thus showing the fixations groundtruth, the panoptic annotation image, and the results for the DG baseline and our proposed DG+TEM showing better results for the DG+TEM approach. The panoptic groundtruth image can be obtained from the COCO dataset or the panoptic/semantic scene segmentation networks proposed by the remarkable paper of [Zhou et., al 2020](https://openaccess.thecvf.com/content_cvpr_2017/html/Zhou_Scene_Parsing_Through_CVPR_2017_paper.html) 
+A great example of the metrics example using the TEM as features is shown on the next figure. This example describes the saliency map pattern using a jet colormap, thus showing the fixations groundtruth, the panoptic annotation image, and the results for the DG baseline and our proposed DG+TEM showing better results for the DG+TEM approach. The panoptic groundtruth image can be obtained from the COCO dataset or the panoptic/semantic scene segmentation networks proposed by the remarkable paper of [Zhou et., al 2017](https://openaccess.thecvf.com/content_cvpr_2017/html/Zhou_Scene_Parsing_Through_CVPR_2017_paper.html) 
 
 
 <img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/example_saliency_pattern.jpg" width="850" height="500">
