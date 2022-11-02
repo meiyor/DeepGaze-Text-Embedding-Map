@@ -82,5 +82,5 @@ All metrics show a significant improvement for all the paired test as we shown i
 A great example of the metrics example using the TEM as features is shown on the next figure. This example describes the saliency map pattern using a jet colormap, thus showing the fixations groundtruth, the panoptic annotation image, and the results for the DG baseline and our proposed DG+TEM showing better results for the DG+TEM approach. The panoptic groundtruth image can be obtained from the COCO dataset or the panoptic/semantic scene segmentation networks proposed by the remarkable paper of [Zhou et., al 2017](https://openaccess.thecvf.com/content_cvpr_2017/html/Zhou_Scene_Parsing_Through_CVPR_2017_paper.html) 
 
 
-<img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/example_saliency_pattern.jpg" width="850" height="500">
+<img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/example_saliency_pattern.jpg" width="600" height="400">
 
