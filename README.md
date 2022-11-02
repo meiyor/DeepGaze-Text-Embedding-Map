@@ -38,7 +38,7 @@ Having your embedding file you can create your TEM images assigning an output fo
 python generate_TEM/generate_TEM_train.py
 python generate_TEM/generate_TEM_val.py
 ```
-The previous calls will generate the TEM images on .tiff format including the 300 dimension of the semantic spaces obtained by Mittens substracting the semantic space of the annotated scene and the objects in the scene. 
+The previous calls will generate the TEM images on .tiff format including the 300 dimension of the semantic spaces obtained by Mittens, and substracting the semantic space of the annotated scene and the objects in the scene. 
 
 If you want to do the same but creating some TEM images with the Cosine, Euclidean, and Chebyshev distances between the annotated scene and the objectes run:
 ```python
@@ -51,7 +51,7 @@ Now you must create the **centerbias** files for the stimuli and the TEM images.
 python create_centerbias.py
 python create_centerbias_TEM.py
 ```
-Now, you are ready to do the training! and you can run the following command. Check the configuration file .yaml, in this case the **config_dg2_TEM.yaml**:
+Now, you are ready to do the training! and you can run the following command. Check the configuration file .yaml, in this case the **config_dg2_TEM.yaml** before run the training/test:
 ```python
 python run_dgII_evaluation_plus_TEM.py
 ```
