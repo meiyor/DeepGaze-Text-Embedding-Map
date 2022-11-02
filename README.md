@@ -61,7 +61,7 @@ A LL evolution through the training epochs could be observed in the following Fi
 
 <img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/pipeline_def_new_no_scan.jpg" width="1100" height="300">
 
-The performance comparison between the [DeepGaze (DG)](https://github.com/matthias-k/deepgaze_pytorch) baseline and outr DeepGaze+TEM approach is the following. Use the code on [**matlab_metrics**](https://github.com/meiyor/DeepGaze-Text-Embedding-Map/tree/main/matlab_metrics) directory to compute the based on the resulting .csv file after training and testing using **run_dgII_evaluation_plus_TEM.py**:
+The performance comparison between the [DeepGaze (DG)](https://github.com/matthias-k/deepgaze_pytorch) baseline and our DeepGaze+TEM approach is the following. Use the code on [**matlab_metrics**](https://github.com/meiyor/DeepGaze-Text-Embedding-Map/tree/main/matlab_metrics) directory to compute the overall results based on the resulting .csv file obtained after training and testing using **run_dgII_evaluation_plus_TEM.py**:
 
 |   | **IG** | **LL** | **AUC** | **NSS** | 
 | ------------- | ------------- |  ------------- | ------------- |  ------------- |
