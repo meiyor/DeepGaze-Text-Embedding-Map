@@ -65,7 +65,7 @@ While you run the training and the test, or after **run_dgII_evaluation_plus_TEM
 
 A LL evolution through the training epochs could be observed in the following Figure including TEM features. This is the full pipeline of our new approach **DeepGaze+TEM**. An [AdaBound](https://github.com/Luolc/AdaBound) optimizer and a final Drop-out layer (before the Finalizer) must be added to the network for avoiding overfitting. The full pipeline of out semantic-based gaze prediction is shown in the following Figure:
 
-<img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/pipeline_def_new_no_scan.jpg" width="900" height="300">
+<img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/pipeline_def_new_no_scan.jpg" width="900" height="360">
 
 The performance comparison between the [DeepGaze (DG)](https://github.com/matthias-k/deepgaze_pytorch) baseline and our DeepGaze+TEM approach is the following. Use the code on [**matlab_metrics**](https://github.com/meiyor/DeepGaze-Text-Embedding-Map/tree/main/matlab_metrics) directory to compute the overall results based on the resulting .csv file obtained after training and testing using **run_dgII_evaluation_plus_TEM.py**:
 
