@@ -18,6 +18,7 @@ Subsequently, download the image data from the following links:
 Download the SALICON fixations in the LSUN challenge webpage here:
 
 [SALICON fixations](http://salicon.net/challenge-2017/)
+
 please download all the train, val, and test fixation if you would prefer to run the whole DeepGaze+TEM experiments in the whole SALICON dataset.
 
 If you don't want to create the fixation hdf5 file manually, you can use fixation data from hdf5 files included in the **experiments_root/** folder
@@ -45,7 +46,7 @@ python generate_TEM/generate_TEM_val.py
 ```
 The previous calls will generate the TEM images on .tiff format including the 300 dimension of the semantic spaces obtained by Mittens, and substracting the semantic space of the annotated scene and the objects in the scene. 
 
-If you want to do the same but creating some TEM images with the Cosine, Euclidean, and Chebyshev distances between the annotated scene and the objectes run:
+If you want to do the same but creating some TEM images with the Cosine, Euclidean, and Chebyshev (for instance) distances between the annotated scene and the objectes run:
 ```python
 python generate_TEM/generate_TEM_train_dist.py
 python generate_TEM/generate_TEM_val_dist.py
