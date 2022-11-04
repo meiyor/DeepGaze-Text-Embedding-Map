@@ -15,9 +15,14 @@ Subsequently, download the image data from the following links:
 
 [COCO images](https://drive.google.com/u/0/uc?id=1RM4gXlSIic22HvYHaS5XOGmjcLDSUiUv&export=download)
 
-For the fixation data use the hdf5 files included in the **experiments_root/** folder
+Download the SALICON fixations in the LSUN challenge webpage here:
 
-and the COCO panoptic segmentations from here and unzip them - **use the train and val panoptic sets released on 2017 and 2020**:
+[SALICON fixations](http://salicon.net/challenge-2017/)
+please download all the train, val, and test fixation if you would prefer to run the whole DeepGaze+TEM experiments in the whole SALICON dataset.
+
+If you don't want to create the fixation hdf5 file manually, you can use fixation data from hdf5 files included in the **experiments_root/** folder
+
+and download the COCO panoptic segmentations from here, unzip them too - **use the train and val panoptic sets released on 2017 and 2020**:
 
 [COCO download**](https://cocodataset.org/#download)
 
