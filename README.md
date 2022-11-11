@@ -89,4 +89,7 @@ A great example of the metrics example using the TEM as features is shown on the
 
 <img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/example_saliency_pattern.jpg" width="850" height="500">
 
+In this example the DG+TEM approach follows more the cake and the baby because the represent fewer co-occurrences in kitchen, and remove percentage of saliency heatmaps to the stove, oven and even the fridge in the right side in comparison with DG only. We can state that DG+TEM works for particular cases in SALICON where appears an object or multiple objects annotated that represent semantic incoherency or a change in bottom-up attention.
 
+
+<img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/baby_example_DG_TEM.jpg" width="850" height="500">
