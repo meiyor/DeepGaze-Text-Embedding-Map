@@ -59,7 +59,7 @@ model:
        layer_norm: True
        batch_norm: True
   fixation_selection_network:
-    input_channels: [1, 0] #or use [1 16] in case you will use the scanpath 
+    input_channels: [1, 0] #or use [1 16] in case you will use the scanpath features use it if you want to perform dgIII training
     layers:
     - name: conv1
       channels: 64
