@@ -59,7 +59,7 @@ python create_centerbias_TEM.py
 ```
 Now, you are ready to do the training! and you can run the following command. Check the configuration file .yaml, in this case the **config_dg2_TEM.yaml** before run the training/test:
 ```python
-python run_dgII_evaluation_plus_TEM.py
+python run_dgIII_evaluation_plus_TEM.py
 ```
 While you run the training and the test, or after **run_dgII_evaluation_plus_TEM.py** is done executing, a log.txt files will present you the current status of the learning, or if you want to wait until the end of the training  the file **results_TEM.csv** will show you the final Log-likehood (LL), Information Gain (IG), Area Under Curve (AUC), and Normalized Scanpath Saliency (NSS).  
 
