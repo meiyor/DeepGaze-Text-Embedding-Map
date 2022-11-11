@@ -180,7 +180,7 @@ class Finalizer(nn.Module):
 # only use this if you want to  use TEM-derive centerbias model in the prediction
 
 
-class Finalizer_TEM(nn.Module):
+class Finalizer_TEM(nn.Module):## don't use finalizer TEM only if necessary use only finalizer as it is described in this code
     """Transforms a readout into a gaze prediction
     A readout network returns a single, spatial map of probable gaze locations.
     This module bundles the common processing steps necessary to transform this into
