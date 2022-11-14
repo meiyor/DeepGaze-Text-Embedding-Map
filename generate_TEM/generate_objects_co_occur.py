@@ -86,9 +86,13 @@ for file_name in onlyfiles_train:
               ind_val=5
            elif cat_val=='office':
               ind_val=6
+           elif cat_val=='tennis_court':
+              ind_val=7
+           elif cat_val=='restaurant':
+              ind_val=8     
            ## if this other scene it is described like 7 ind_val you can add more if you decide, in COCO is more complicated because it is not an scene but a supercategory and in most times is part of the objects     
            else:
-              ind_val=7
+              ind_val=9
            break
     for k in range(0,len(annotation_object)):
        file_annotated=annotation_object[k]['file_name'].split('.')
@@ -110,9 +114,9 @@ for file_name in onlyfiles_train:
                    if ind>=1 and len(num_objects):
                       for p in range(0,len(num_objects)):
                           #print(ind,num_objects,num_objects[p],'kk')
-                          co_occur_mat[ind+7,num_objects[p]+7]=co_occur_mat[ind+7,num_objects[p]+7]+1
+                          co_occur_mat[ind+9,num_objects[p]+7]=co_occur_mat[ind+7,num_objects[p]+7]+1
                           print(ind_val,'ind_val')
-                          if ind_val<=6:
+                          if ind_val<=8:
                              co_occur_mat[ind_val,num_objects[p]+7]=co_occur_mat[ind_val,num_objects[p]+7]+1
                       #num_objects.append(ind[0])
                    #else:
@@ -122,14 +126,14 @@ for file_name in onlyfiles_train:
                else:
                      ind_n = [object_list.index(i_n) for i_n in object_list  if name_object in i_n]
                      num_objects.append(ind_n[0])
-                     if not(ind_n[0]+7 == ind+7):
+                     if not(ind_n[0]+9 == ind+9):
                         for p in range(0,len(num_objects)):
-                          if not(ind_n[0]+7 == num_objects[p]+7):
+                          if not(ind_n[0]+9 == num_objects[p]+9):
                               #print(ind_val,'ind_val')
                               #print(ind_n,num_objects[p],'ll')
-                              co_occur_mat[ind_n[0]+7,num_objects[p]+7]=co_occur_mat[ind_n[0]+7,num_objects[p]+7]+1
-                              if ind_val<=6:
-                                 co_occur_mat[ind_val,num_objects[p]+7]=co_occur_mat[ind_val,num_objects[p]+7]+1 
+                              co_occur_mat[ind_n[0]+9,num_objects[p]+9]=co_occur_mat[ind_n[0]+7,num_objects[p]+7]+1
+                              if ind_val<=8:
+                                 co_occur_mat[ind_val,num_objects[p]+9]=co_occur_mat[ind_val,num_objects[p]+7]+1 
 
            break
 print(co_occur_mat,object_list,len(object_list))
