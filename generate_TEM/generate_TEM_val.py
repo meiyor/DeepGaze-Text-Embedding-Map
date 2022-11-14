@@ -25,10 +25,9 @@ csv_file='COCO_SALICON_val_only_def_annotation.csv'
 output_dir='TEM_output_val'
 
 ## read the semantic results files from the images itself
-#semantic_vectors = scipy.io.loadmat('/home/jmm_vivobook_asus/DeepGaze_project/COCO/')
 name_vectors=[]
 vector_data=[]
-data_vectors='sal_ground_truth_emb_SALICON_TEM_w.txt'
+data_vectors='sal_ground_truth_emb_SALICON_TEM_w.txt' ## this is the coco word embeddings obtained from previous evaluations
 with open(data_vectors,newline='') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',')
         for row in spamreader:
