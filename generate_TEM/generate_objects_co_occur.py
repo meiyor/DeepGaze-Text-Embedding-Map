@@ -58,6 +58,7 @@ onlyfiles_val = [f2 for f2 in listdir(directory_images_val) if isfile(join(direc
 print(category_res)
 ## matrix construction
 
+## the co-occurrence matrix is 117 to 117 objects from this specific data intersection
 co_occur_mat=np.zeros((117,117))
 object_list=[]
 object_list_scenes=['kitchen','bedroom','living_room','bathroom','corridor','dinning_room','office']
@@ -85,6 +86,7 @@ for file_name in onlyfiles_train:
               ind_val=5
            elif cat_val=='office':
               ind_val=6
+           ## if this other scene it is described like 7 ind_val you can add more if you decide, in COCO is more complicated because it is not an scene but a supercategory and in most times is part of the objects     
            else:
               ind_val=7
            break
