@@ -58,8 +58,8 @@ onlyfiles_val = [f2 for f2 in listdir(directory_images_val) if isfile(join(direc
 print(category_res)
 ## matrix construction
 
-## the co-occurrence matrix is 116 to 116 objects from this specific data intersection
-co_occur_mat=np.zeros((117,117))
+## the co-occurrence matrix is 118 to 118 objects from this specific data intersection
+co_occur_mat=np.zeros((119,119))
 object_list=[]
 object_list_scenes=['kitchen','bedroom','living_room','bathroom','corridor','dinning_room','office','tennis_court','restaurant']
 ind=0
