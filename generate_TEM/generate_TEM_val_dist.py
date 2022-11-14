@@ -28,7 +28,7 @@ output_dir='TEM_output_dist'
 ## read the semantic results files from the images itself
 name_vectors=[]
 vector_data=[]
-data_vectors='sal_ground_truth_emb_SALICON_TEM_w.txt'
+data_vectors='sal_ground_truth_emb_SALICON_TEM_w.txt' ## this is the coco word embeddings obtained from previous evaluations
 with open(data_vectors,newline='') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',')
         for row in spamreader:
