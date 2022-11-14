@@ -32,7 +32,7 @@ unzip the file and allocate the folders in the right places you will use it for 
 ```bash
 unzip COCO_subfolder_output.zip
 ```
-First generate the TEM, take into account that the file **file_annotations/sal_ground_truth_emb_SALICON_TEM_w.txt** structures **file_annotations/sal_ground_truth_emb_ADE20K_all_image_co_occur.txt**. If you want to generate the embedding from scratch and first define your new training folder before run - refer to the code to see the specific details in **generate_objects_co_occur.py**:
+First generate the TEM, take into account that the file if you want to used pre-trained word-embeddings **file_annotations/sal_ground_truth_emb_SALICON_TEM_w.txt** structures **file_annotations/sal_ground_truth_emb_ADE20K_all_image_co_occur.txt**. If you want to generate the embedding from scratch and first define your new training folder before run - refer to the code to see the specific details in **generate_objects_co_occur.py**:
 ```python
 python generate_TEM/generate_objects_co_occur.py
 ```
