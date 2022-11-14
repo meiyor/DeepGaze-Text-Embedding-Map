@@ -112,7 +112,7 @@ for file_name in onlyfiles_train:
                           #print(ind,num_objects,num_objects[p],'kk')
                           co_occur_mat[ind+7,num_objects[p]+7]=co_occur_mat[ind+7,num_objects[p]+7]+1
                           print(ind_val,'ind_val')
-                          if ind_val<5:
+                          if ind_val<=6:
                              co_occur_mat[ind_val,num_objects[p]+7]=co_occur_mat[ind_val,num_objects[p]+7]+1
                       #num_objects.append(ind[0])
                    #else:
@@ -128,7 +128,7 @@ for file_name in onlyfiles_train:
                               #print(ind_val,'ind_val')
                               #print(ind_n,num_objects[p],'ll')
                               co_occur_mat[ind_n[0]+7,num_objects[p]+7]=co_occur_mat[ind_n[0]+7,num_objects[p]+7]+1
-                              if ind_val<5:
+                              if ind_val<=6:
                                  co_occur_mat[ind_val,num_objects[p]+7]=co_occur_mat[ind_val,num_objects[p]+7]+1 
 
            break
