@@ -61,7 +61,7 @@ print(category_res)
 ## the co-occurrence matrix is 116 to 116 objects from this specific data intersection
 co_occur_mat=np.zeros((117,117))
 object_list=[]
-object_list_scenes=['kitchen','bedroom','living_room','bathroom','corridor','dinning_room','office']
+object_list_scenes=['kitchen','bedroom','living_room','bathroom','corridor','dinning_room','office','tennis_court','restaurant']
 ind=0
 for file_name in onlyfiles_train:
     f_name=file_name.split('_')
@@ -90,7 +90,7 @@ for file_name in onlyfiles_train:
               ind_val=7
            elif cat_val=='restaurant':
               ind_val=8     
-           ## if this other scene it is described like 7 ind_val you can add more if you decide, in COCO is more complicated because it is not an scene but a supercategory and in most times is part of the objects     
+           ## if this other scene it is described like 9 ind_val you can add more if you decide, in COCO is more complicated because it is not an scene but a supercategory and in most times is part of the objects so work with supercategory    
            else:
               ind_val=9
            break
