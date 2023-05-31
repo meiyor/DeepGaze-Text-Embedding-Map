@@ -63,7 +63,7 @@ python run_dgIII_evaluation_plus_TEM.py
 ```
 While you run the training and the test, or after **run_dgIII_evaluation_plus_TEM.py** is done executing, a log.txt files will present you the current status of the learning, or if you want to wait until the end of the training  the file **results_TEM.csv** will show you the final Log-likehood (LL), Information Gain (IG), Area Under Curve (AUC), and Normalized Scanpath Saliency (NSS).  
 
-A LL evolution through the training epochs could be observed in the following Figure including TEM features. This is the full pipeline of our new approach **DeepGaze+TEM**. An [AdaBound](https://github.com/Luolc/AdaBound) optimizer and a final Drop-out layer (before the Finalizer) must be added to the network for avoiding overfitting. The full pipeline of out semantic-based gaze prediction is shown in the following Figure:
+A LL evolution through the training epochs could be observed in the following Figures including the TEM features. This is the full pipeline of our new approach **DeepGaze+TEM**. An [AdaBound](https://github.com/Luolc/AdaBound) optimizer and a final Drop-out layer (before the Finalizer) must be added to the network for avoiding overfitting. The full pipeline of out semantic-based gaze prediction is shown in the following Figure:
 
 <img src="https://github.com/meiyor/DeepGaze-Text-Embedding-Map/blob/main/pipeline_def_new.jpg" width="900" height="360">
 
