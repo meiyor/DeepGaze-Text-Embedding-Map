@@ -44,7 +44,7 @@ Having your embedding file you can create your TEM images assigning an output fo
 python generate_TEM/generate_TEM_train.py
 python generate_TEM/generate_TEM_val.py
 ```
-The previous calls will generate the TEM images on .tiff format including the 300 dimension of the semantic spaces obtained by Mittens, and substracting the semantic space of the annotated scene and the objects in the scene. 
+The previous calls will generate the TEM images on .tiff format including the 300 dimension of the semantic spaces obtained by Mittens, and substracting the semantic space of the annotated scene and each object in the scene. 
 
 If you want to do the same but creating some TEM images with the Cosine, Euclidean, and Chebyshev (for instance) distances between the annotated scene and the objectes run:
 ```python
