@@ -19,7 +19,7 @@ Download the SALICON fixations in the LSUN challenge webpage here:
 
 [SALICON fixations](http://salicon.net/challenge-2017/)
 
-please download all the train, val, and test fixation if you would prefer to run the whole DeepGaze+TEM experiments in the whole SALICON dataset.
+Please download all the train, val, and test fixation if you would prefer to run the whole DeepGaze+TEM experiments in the whole SALICON dataset.
 
 If you don't want to create the fixation hdf5 file manually, you can use fixation data from hdf5 files included in the **experiments_root/** folder
 
@@ -57,7 +57,7 @@ Now you must create the **centerbias** files for the stimuli and the TEM images.
 python create_centerbias.py
 python create_centerbias_TEM.py
 ```
-Now, you are ready to do the training! and you can run the following command. Check the configuration file .yaml, in this case the **config_dgIII_TEM.yaml** before run the training/test:
+Now, you are ready to do the training! and you can run the following command. Check the configuration file .yaml, in this case the **config_dgIII_TEM.yaml** file before run the training/test:
 ```python
 python run_dgIII_evaluation_plus_TEM.py
 ```
