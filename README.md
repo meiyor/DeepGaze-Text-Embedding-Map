@@ -57,7 +57,7 @@ Now you must create the **centerbias** files for the stimuli and the TEM images.
 python create_centerbias.py
 python create_centerbias_TEM.py
 ```
-Now, you are ready to do the training! and you can run the following command. Check the configuration file .yaml, in this case the **config_dgIII_TEM.yaml** file before run the training/test:
+Now, you are ready to do the training! and you can run the following command. Check the configuration file .yaml, in this case the **config_dgIII_TEM.yaml** file before executing the training/test as follows:
 ```python
 python run_dgIII_evaluation_plus_TEM.py
 ```
